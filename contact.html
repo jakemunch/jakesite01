@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — Jake's Pro Music &amp; Audio Skills Center</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Libre+Franklin:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <nav class="main-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-icon">♪</span>
+        <span class="logo-text">Jake's Pro Music &amp; Audio</span>
+      </a>
+      <button class="nav-toggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="services.html">Services</a></li>
+        <li><a href="testimonials.html">Testimonials</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="contact.html" class="nav-cta active">Get in Touch</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="page-header">
+    <h1>Get in Touch</h1>
+    <p>Have a question, want to book a lesson, or need a quote for your project? Let's talk.</p>
+  </header>
+
+  <section class="contact-section">
+    <div class="container">
+      <div class="contact-layout">
+
+        <div class="contact-form-wrap">
+          <h2>Send Me a Message</h2>
+          <!--
+            =====================================================
+            FORMSPREE SETUP INSTRUCTIONS:
+            1. Go to https://formspree.io and create a free account
+            2. Create a new form — Formspree will give you a form ID
+               (looks like: https://formspree.io/f/xyzabcde)
+            3. Replace YOUR_FORM_ID below with your actual form ID
+            =====================================================
+          -->
+          <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST" class="contact-form">
+
+            <div class="form-group">
+              <label for="name">Your Name <span class="required">*</span></label>
+              <input type="text" id="name" name="name" required placeholder="First and last name">
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email Address <span class="required">*</span></label>
+              <input type="email" id="email" name="email" required placeholder="you@example.com">
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone Number <span class="optional">(optional)</span></label>
+              <input type="tel" id="phone" name="phone" placeholder="(555) 555-5555">
+            </div>
+
+            <div class="form-group">
+              <label for="interest">I'm Interested In <span class="required">*</span></label>
+              <select id="interest" name="interest" required>
+                <option value="" disabled selected>Select an option...</option>
+                <option value="drum-lessons">Drum Lessons</option>
+                <option value="guitar-lessons">Guitar Lessons</option>
+                <option value="piano-lessons">Piano / Keyboard Lessons</option>
+                <option value="percussion-lessons">Classical Percussion Lessons</option>
+                <option value="studio-audio">Studio Audio Engineering Instruction</option>
+                <option value="live-audio">Live Audio Engineering Instruction</option>
+                <option value="sound-consulting">Live Sound Consulting</option>
+                <option value="theater-sound">Theater Sound Design</option>
+                <option value="other">Other / Multiple Services</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="format">Preferred Format</label>
+              <select id="format" name="format">
+                <option value="" disabled selected>Select an option...</option>
+                <option value="zoom">Zoom (remote)</option>
+                <option value="in-person">In-Person (Greater Philly area)</option>
+                <option value="either">Either / No Preference</option>
+                <option value="na">N/A (consulting inquiry)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="experience">Current Experience Level</label>
+              <select id="experience" name="experience">
+                <option value="" disabled selected>Select an option...</option>
+                <option value="beginner">Beginner — Just starting out</option>
+                <option value="intermediate">Intermediate — Some experience</option>
+                <option value="advanced">Advanced — Looking to level up</option>
+                <option value="professional">Professional — Specialized needs</option>
+                <option value="na">N/A (consulting inquiry)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="message">Tell Me More <span class="required">*</span></label>
+              <textarea id="message" name="message" rows="5" required placeholder="What are your goals? Any specific questions? Tell me a bit about yourself or your project."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-submit">Send Message</button>
+
+            <p class="form-note">I typically respond within 24–48 hours. For urgent consulting inquiries, please mention the timeline in your message.</p>
+
+          </form>
+        </div>
+
+        <div class="contact-sidebar">
+          <div class="sidebar-card">
+            <h3>Quick Info</h3>
+            <div class="sidebar-item">
+              <strong>📍 Location</strong>
+              <p>Greater Philadelphia Area<br>In-person &amp; Zoom available</p>
+            </div>
+            <div class="sidebar-item">
+              <strong>📧 Email</strong>
+              <p><a href="mailto:jake@jakemunch.com">jake@jakemunch.com</a></p>
+              <!-- Update this email to whatever you want displayed -->
+            </div>
+            <div class="sidebar-item">
+              <strong>⏰ Response Time</strong>
+              <p>Within 24–48 hours</p>
+            </div>
+          </div>
+
+          <div class="sidebar-card">
+            <h3>What to Expect</h3>
+            <p>After you submit this form, here's what happens:</p>
+            <ol class="expect-list">
+              <li>I'll review your message and get back to you within 48 hours</li>
+              <li>We'll schedule a brief call or Zoom chat to discuss your needs</li>
+              <li>I'll recommend the right plan, whether that's lessons, consulting, or a combination</li>
+            </ol>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="logo-icon">♪</span>
+          <span>Jake's Pro Music &amp; Audio Skills Center</span>
+        </div>
+        <div class="footer-links">
+          <a href="index.html">Home</a>
+          <a href="about.html">About</a>
+          <a href="services.html">Services</a>
+          <a href="testimonials.html">Testimonials</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="contact.html">Contact</a>
+        </div>
+        <p class="footer-copy">&copy; 2026 Jake Munch. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="nav.js"></script>
+</body>
+</html>
