@@ -484,25 +484,16 @@ img {
 }
 
 .about-intro {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 48px;
-  align-items: start;
   margin-bottom: 64px;
 }
 
-.about-photo-placeholder {
+.about-photo {
   width: 100%;
-  aspect-ratio: 3 / 4;
-  background: var(--color-bg-alt);
-  border: 2px dashed var(--color-border);
+  max-width: 720px;
   border-radius: var(--radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
-  text-align: center;
+  box-shadow: var(--shadow-lg);
+  margin: 0 auto 40px;
+  display: block;
 }
 
 .about-text h2 {
@@ -595,12 +586,8 @@ img {
 }
 
 @media (max-width: 680px) {
-  .about-intro {
-    grid-template-columns: 1fr;
-  }
-  .about-photo-placeholder {
-    max-width: 240px;
-    margin: 0 auto;
+  .about-photo {
+    max-width: 100%;
   }
 }
 
