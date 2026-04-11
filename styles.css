@@ -989,6 +989,136 @@ img {
 }
 
 /* ===================================================
+   GEAR PAGE
+   =================================================== */
+
+.gear-context-bar {
+  background: var(--color-bg-alt);
+  border-bottom: 1px solid var(--color-border);
+  padding: 24px 0;
+}
+
+.gear-context-items {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.gear-context-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.gear-context-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.gear-context-item strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+.gear-context-item span {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.gear-context-divider {
+  width: 1px;
+  height: 40px;
+  background: var(--color-border);
+}
+
+@media (max-width: 600px) {
+  .gear-context-divider { display: none; }
+  .gear-context-items { gap: 20px; }
+}
+
+.gear-content {
+  padding: 64px 0;
+}
+
+.gear-section {
+  margin-bottom: 80px;
+}
+
+.gear-subsection {
+  margin-bottom: 32px;
+}
+
+.gear-subsection h3 {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  color: var(--color-heading);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-primary-light);
+}
+
+.gear-subsection-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--color-text-muted);
+  margin: 20px 0 8px;
+}
+
+.gear-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.gear-table th {
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted);
+  background: var(--color-bg-alt);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.gear-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  vertical-align: top;
+}
+
+.gear-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.gear-table tbody tr:hover {
+  background: var(--color-bg-alt);
+}
+
+@media (max-width: 768px) {
+  .gear-table {
+    font-size: 0.82rem;
+  }
+  .gear-table th,
+  .gear-table td {
+    padding: 8px 12px;
+  }
+}
+
+/* ===================================================
    ANIMATIONS
    =================================================== */
 
