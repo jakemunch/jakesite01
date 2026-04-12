@@ -976,6 +976,232 @@ img {
 }
 
 /* ===================================================
+   STUDIO SERVICES PAGE
+   =================================================== */
+
+.studio-content {
+  padding: 72px 0 48px;
+}
+
+.studio-intro {
+  margin-bottom: 40px;
+}
+
+.studio-services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.studio-service-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.studio-service-icon {
+  font-size: 2rem;
+  margin-bottom: 4px;
+}
+
+.studio-service-card h3 {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  color: var(--color-heading);
+  margin: 0;
+}
+
+.studio-service-card p {
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Workflow */
+.studio-workflow {
+  padding: 64px 0;
+  background: var(--color-bg-alt);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.workflow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.workflow-step {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.workflow-step:last-child {
+  border-bottom: none;
+}
+
+.workflow-number {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.workflow-body h3 {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  color: var(--color-heading);
+  margin-bottom: 8px;
+}
+
+.workflow-body p {
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Audio Samples */
+.studio-samples {
+  padding: 72px 0;
+}
+
+.samples-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.sample-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+}
+
+.sample-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.sample-badge {
+  display: inline-block;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.sample-card h3 {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  color: var(--color-heading);
+  margin: 0;
+}
+
+.sample-card p {
+  font-size: 0.92rem;
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+  line-height: 1.7;
+}
+
+.sample-card audio {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* Equipment Highlights */
+.studio-equipment {
+  padding: 72px 0;
+  background: var(--color-bg-alt);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.equipment-highlights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 28px;
+}
+
+.equip-group {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+}
+
+.equip-group h3 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: var(--color-heading);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.equip-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.equip-list li {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  padding-left: 14px;
+  position: relative;
+}
+
+.equip-list li::before {
+  content: '–';
+  position: absolute;
+  left: 0;
+  color: var(--color-primary);
+}
+
+.equip-list strong {
+  color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+  .workflow-step {
+    gap: 18px;
+  }
+  .sample-card {
+    padding: 22px 20px;
+  }
+}
+
+/* ===================================================
    LIGHTBOX
    =================================================== */
 
