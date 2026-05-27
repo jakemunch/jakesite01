@@ -145,10 +145,10 @@ No rates displayed on site. All pricing is "Contact for pricing."
 
 - [ ] Confirm or update the contact email displayed in the sidebar (currently `jake@jakemunch.com`)
 - [ ] Add headshot photo to About page (replace `.about-photo-placeholder` div with `<img>`)
-- [ ] Add gallery photos (place in `images/` folder, replace `.gallery-placeholder` divs with `<img>` tags)
-- [ ] Replace testimonial placeholder cards with real quotes (6 slots ready)
+- [ ] Add gallery photos (place in `images/` folder, replace `.gallery-placeholder` divs with `<img>` tags) — Teaching & Mentoring category still has 3 placeholder slots
+- [ ] Replace testimonial placeholder cards with real quotes — cards 3–6 are still placeholders
 - [ ] Finalize business/brand name (currently "Jake's Pro Music & Audio Skills Center")
-- [ ] Enforce HTTPS in GitHub Pages settings once certificate is issued
+- [x] Enforce HTTPS in GitHub Pages settings — confirmed enforced (2026-05-22)
 
 ---
 
