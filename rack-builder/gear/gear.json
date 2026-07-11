@@ -1,0 +1,236 @@
+[
+  {
+    "id": "focusrite-isa-428-mk1",
+    "name": "Focusrite ISA 428 MkI",
+    "manufacturer": "Focusrite",
+    "category": "audio",
+    "uHeight": 2,
+    "width": "full",
+    "image": "images/focusrite-isa-428-mk1.png"
+  },
+  {
+    "id": "apogee-ensemble-tb",
+    "name": "Apogee Ensemble TB",
+    "manufacturer": "Apogee",
+    "category": "audio",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/apogee-ensemble-tb.png"
+  },
+  {
+    "id": "tk-audio-bc1-s",
+    "name": "TK Audio BC1-S",
+    "manufacturer": "TK Audio",
+    "category": "audio",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/tk-audio-bc1-s.png"
+  },
+  {
+    "id": "api-a2d",
+    "name": "API A2D",
+    "manufacturer": "API",
+    "category": "audio",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/api-a2d.png"
+  },
+  {
+    "id": "ua-2-610",
+    "name": "Universal Audio 2-610",
+    "manufacturer": "Universal Audio",
+    "category": "audio",
+    "uHeight": 2,
+    "width": "full",
+    "image": "images/ua-2-610.png"
+  },
+  {
+    "id": "furman-m-8x2",
+    "name": "Furman M-8x2",
+    "manufacturer": "Furman",
+    "category": "power",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/furman-m-8x2.png"
+  },
+  {
+    "id": "radial-power-1",
+    "name": "Radial Power-1",
+    "manufacturer": "Radial Engineering",
+    "category": "power",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/radial-power-1.png"
+  },
+  {
+    "id": "warm-audio-wa-2a",
+    "name": "Warm Audio WA-2A",
+    "manufacturer": "Warm Audio",
+    "category": "audio",
+    "uHeight": 2,
+    "width": "full",
+    "image": "images/warm-audio-wa-2a.png"
+  },
+  {
+    "id": "lexicon-mx300",
+    "name": "Lexicon MX300",
+    "manufacturer": "Lexicon",
+    "category": "fx",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/lexicon-mx300.png"
+  },
+  {
+    "id": "tc-electronic-m-one-xl",
+    "name": "TC Electronic M-One XL",
+    "manufacturer": "TC Electronic",
+    "category": "fx",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/tc-electronic-m-one-xl.png"
+  },
+  {
+    "id": "art-p16",
+    "name": "ART P16 XLR Patchbay",
+    "manufacturer": "ART",
+    "category": "misc",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/art-p16.png"
+  },
+  {
+    "id": "samson-s-patch-plus",
+    "name": "Samson S-Patch Plus",
+    "manufacturer": "Samson",
+    "category": "misc",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/samson-s-patch-plus.png"
+  },
+  {
+    "id": "behringer-p16-i",
+    "name": "Behringer P16-I",
+    "manufacturer": "Behringer",
+    "category": "misc",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/behringer-p16-i.png"
+  },
+  {
+    "id": "rack-drawer-1u",
+    "name": "Rack Drawer (1U)",
+    "manufacturer": "Generic",
+    "category": "misc",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/rack-drawer-1u.svg"
+  },
+  {
+    "id": "rack-drawer-2u",
+    "name": "Rack Drawer (2U)",
+    "manufacturer": "Generic",
+    "category": "misc",
+    "uHeight": 2,
+    "width": "full",
+    "image": "images/rack-drawer-2u.svg"
+  },
+  {
+    "id": "rack-drawer-3u",
+    "name": "Rack Drawer (3U)",
+    "manufacturer": "Generic",
+    "category": "misc",
+    "uHeight": 3,
+    "width": "full",
+    "image": "images/rack-drawer-3u.svg"
+  },
+  {
+    "id": "rack-drawer-4u",
+    "name": "Rack Drawer (4U)",
+    "manufacturer": "Generic",
+    "category": "misc",
+    "uHeight": 4,
+    "width": "full",
+    "image": "images/rack-drawer-4u.svg"
+  },
+  {
+    "id": "blank-panel-1u-full",
+    "name": "Blank Panel (1U, full)",
+    "manufacturer": "Generic",
+    "category": "misc",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/blank-panel-1u-full.svg"
+  },
+  {
+    "id": "blank-panel-1u-half",
+    "name": "Blank Panel (1U, half)",
+    "manufacturer": "Generic",
+    "category": "misc",
+    "uHeight": 1,
+    "width": "half",
+    "image": "images/blank-panel-1u-half.svg"
+  },
+  {
+    "id": "korg-dtr-2000",
+    "name": "Korg DTR-2000",
+    "manufacturer": "Korg",
+    "category": "misc",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/korg-dtr-2000.png"
+  },
+  {
+    "id": "sennheiser-ew300-g3-a",
+    "name": "Sennheiser EW300 G3 (A)",
+    "manufacturer": "Sennheiser",
+    "category": "wireless",
+    "uHeight": 1,
+    "width": "half",
+    "image": "images/sennheiser-ew300-g3.png"
+  },
+  {
+    "id": "sennheiser-ew300-g3-g",
+    "name": "Sennheiser EW300 G3 (G)",
+    "manufacturer": "Sennheiser",
+    "category": "wireless",
+    "uHeight": 1,
+    "width": "half",
+    "image": "images/sennheiser-ew300-g3.png"
+  },
+  {
+    "id": "sennheiser-asa1",
+    "name": "Sennheiser ASA-1",
+    "manufacturer": "Sennheiser",
+    "category": "wireless",
+    "uHeight": 1,
+    "width": "half",
+    "image": "images/sennheiser-asa1.png"
+  },
+  {
+    "id": "bnc-feedthrough-1u-half",
+    "name": "BNC Feedthrough Panel (1U, half)",
+    "manufacturer": "Generic",
+    "category": "misc",
+    "uHeight": 1,
+    "width": "half",
+    "image": "images/bnc-feedthrough-1u-half.svg"
+  },
+  {
+    "id": "shure-scm268",
+    "name": "Shure SCM268",
+    "manufacturer": "Shure",
+    "category": "misc",
+    "uHeight": 1,
+    "width": "half",
+    "image": "images/shure-scm268.png"
+  },
+  {
+    "id": "sennheiser-asp1-assembly",
+    "name": "Sennheiser ASP-1 (in split-bulkhead chassis)",
+    "manufacturer": "Sennheiser",
+    "category": "wireless",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/sennheiser-asp1-assembly.svg"
+  }
+]
