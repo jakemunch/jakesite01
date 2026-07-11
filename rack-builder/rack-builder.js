@@ -500,6 +500,11 @@
     return gearById[dragCtx.gearId];
   }
 
+  function setBodyNoSelect(on) {
+    document.body.style.userSelect = on ? 'none' : '';
+    document.body.style.webkitUserSelect = on ? 'none' : '';
+  }
+
   function isPointOverSidebar(x, y) {
     var rect = sidebarEl.getBoundingClientRect();
     return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
@@ -602,6 +607,7 @@
 
   function finishGearDrag(e) {
     if (!dragCtx.started) return;
+    setBodyNoSelect(false);
     var hover = dragCtx.hoverSlot;
     clearHoverHighlights();
     if (dragCtx.ghostEl) dragCtx.ghostEl.remove();
@@ -643,6 +649,7 @@
       moved: false
     };
     rackEl.classList.add('rb-dragging');
+    setBodyNoSelect(true);
     beginChange();
     document.addEventListener('pointermove', onDragMove);
     document.addEventListener('pointerup', onDragEnd);
@@ -665,6 +672,7 @@
 
   function finishRackDrag() {
     dragCtx.rackEl.classList.remove('rb-dragging');
+    setBodyNoSelect(false);
     var rack = state.racks.find(function (r) { return r.id === dragCtx.rackId; });
     if (dragCtx.moved && rack) {
       rack.x = dragCtx.newX;
@@ -683,6 +691,7 @@
     var rack = state.racks.find(function (r) { return r.id === rackId; });
     if (!rack) return;
     handleEl.classList.add('rb-resizing');
+    setBodyNoSelect(true);
     dragCtx = {
       type: 'resize',
       rackId: rackId,
@@ -717,6 +726,7 @@
 
   function finishResizeDrag() {
     dragCtx.handleEl.classList.remove('rb-resizing');
+    setBodyNoSelect(false);
     var rack = state.racks.find(function (r) { return r.id === dragCtx.rackId; });
     if (rack && rack.uHeight !== dragCtx.startUHeight) {
       commitChange();
@@ -734,6 +744,7 @@
         var dx = e.clientX - dragCtx.startX, dy = e.clientY - dragCtx.startY;
         if (Math.hypot(dx, dy) < 4) return;
         dragCtx.started = true;
+        setBodyNoSelect(true);
         if (dragCtx.sourceItemEl) dragCtx.sourceItemEl.classList.add('rb-dragging-source');
         if (dragCtx.sourcePlacedEl) dragCtx.sourcePlacedEl.classList.add('rb-dragging-placed');
         createGhost(gearForDrag(), e.clientX, e.clientY);
@@ -767,6 +778,7 @@
     document.removeEventListener('pointerup', onDragEnd);
     document.removeEventListener('pointercancel', onDragEnd);
 
+    setBodyNoSelect(false);
     clearHoverHighlights();
     if (dragCtx.ghostEl) dragCtx.ghostEl.remove();
     if (dragCtx.sourceItemEl) dragCtx.sourceItemEl.classList.remove('rb-dragging-source');
@@ -880,16 +892,17 @@
       if (e.pointerType && e.pointerType !== 'mouse') return;
 
       var resizeHandle = e.target.closest('.rb-resize-handle');
-      if (resizeHandle) { startResizeDrag(e, resizeHandle); return; }
+      if (resizeHandle) { e.preventDefault(); startResizeDrag(e, resizeHandle); return; }
 
       var gearItem = e.target.closest('.rb-gear-item');
-      if (gearItem) { startLibraryGearDrag(e, gearItem); return; }
+      if (gearItem) { e.preventDefault(); startLibraryGearDrag(e, gearItem); return; }
 
       var placedGear = e.target.closest('.rb-gear-placed');
-      if (placedGear && !e.target.closest('.rb-gear-remove')) { startPlacedGearDrag(e, placedGear); return; }
+      if (placedGear && !e.target.closest('.rb-gear-remove')) { e.preventDefault(); startPlacedGearDrag(e, placedGear); return; }
 
       var titlebar = e.target.closest('.rb-rack-titlebar');
       if (titlebar && !e.target.closest('.rb-rack-name') && !e.target.closest('.rb-rack-delete')) {
+        e.preventDefault();
         startRackDrag(e, titlebar);
       }
     });
