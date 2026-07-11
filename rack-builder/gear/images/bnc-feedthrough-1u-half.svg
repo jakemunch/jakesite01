@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="190" height="40" viewBox="0 0 190 40">
+  <rect width="190" height="40" fill="#2b2f36"/>
+  <rect width="6" height="40" fill="#8a8a8a"/>
+  <rect x="0.5" y="0.5" width="189" height="39" fill="none" stroke="#454b54" stroke-width="1"/>
+  <text x="98" y="9" text-anchor="middle" font-family="sans-serif" font-size="7" font-weight="600" fill="#e8e6e1">BNC FEEDTHROUGH</text>
+  <circle cx="63.3" cy="21" r="6.5" fill="#1a1c20" stroke="#54595f" stroke-width="1"/>
+  <circle cx="63.3" cy="21" r="2.5" fill="#0c0d0f"/>
+  <circle cx="126.7" cy="21" r="6.5" fill="#1a1c20" stroke="#54595f" stroke-width="1"/>
+  <circle cx="126.7" cy="21" r="2.5" fill="#0c0d0f"/>
+  <text x="98" y="37" text-anchor="middle" font-family="sans-serif" font-size="7" fill="#9a9fa8">(Generic) &#183; 1U half</text>
+</svg>

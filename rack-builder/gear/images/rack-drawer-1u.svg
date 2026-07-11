@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="436" height="40" viewBox="0 0 436 40">
+  <rect width="436" height="40" fill="#3a3f47"/>
+  <circle cx="14" cy="8" r="4" fill="#1a1c20"/>
+  <circle cx="14" cy="32" r="4" fill="#1a1c20"/>
+  <circle cx="422" cy="8" r="4" fill="#1a1c20"/>
+  <circle cx="422" cy="32" r="4" fill="#1a1c20"/>
+  <rect x="28" width="380" height="40" fill="#2b2f36"/>
+  <rect x="28" width="6" height="40" fill="#8a8a8a"/>
+  <rect x="28.5" y="0.5" width="379" height="39" fill="none" stroke="#454b54" stroke-width="1"/>
+  <rect x="88" y="13" width="260" height="14" rx="3" fill="#1f2226" stroke="#454b54" stroke-width="1"/>
+  <circle cx="218" cy="20" r="3" fill="#14161a" stroke="#3a3f47" stroke-width="0.5"/>
+  <text x="218" y="36" text-anchor="middle" font-family="sans-serif" font-size="7" fill="#9a9fa8">Rack Drawer (Generic) &#183; 1U full</text>
+</svg>

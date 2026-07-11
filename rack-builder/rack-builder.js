@@ -1,14 +1,20 @@
 (function () {
   'use strict';
 
-  // ---------- Render-scale constants (see rack-planner-spec.md Image Specifications) ----------
-  var U_PX = 72;
+  // ---------- Render-scale constants ----------
+  // U_PX matches true 19in-rail proportions (19/1.75 ~= 10.86:1 width:height per U)
+  // against the bled full-width frame (RAIL_W*2 + FULL_W = 436px), so real gear
+  // photos need minimal stretching: 436 / 10.86 ~= 40.
+  var U_PX = 40;
   var FULL_W = 380;
   var HALF_W = 190;
   var RAIL_W = 28;
   var LABEL_W = 18;
   var GRID = 20;
   var STORAGE_KEY = 'rackBuilderLayout.v1';
+  var SIDEBAR_WIDTH_KEY = 'rackBuilderSidebarWidth.v1';
+  var SIDEBAR_MIN_W = 200;
+  var SIDEBAR_MAX_W = 560;
 
   var CATEGORY_COLORS = {
     wireless: '#4a90d9',
@@ -48,6 +54,12 @@
     return String(str).replace(/[&<>"']/g, function (ch) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
     });
+  }
+
+  function gearImageUrl(gear) {
+    // gear.json's "image" field is relative to the gear/ folder (per the
+    // spec's directory layout), not to index.html, so it needs the prefix.
+    return 'gear/' + gear.image;
   }
 
   function generateId(prefix) {
@@ -238,6 +250,7 @@
       })
       .then(function (data) {
         gearCatalog = Array.isArray(data) ? data : [];
+        gearCatalog.sort(function (a, b) { return a.name.localeCompare(b.name); });
       })
       .catch(function (err) {
         gearCatalog = [];
@@ -284,6 +297,7 @@
     var dot = CATEGORY_COLORS[gear.category] || '#8a8a8a';
     var label = CATEGORY_LABELS[gear.category] || gear.category;
     el.innerHTML =
+      '<span class="rb-gear-thumb"><img src="' + escapeHtml(gearImageUrl(gear)) + '" alt="" loading="lazy"></span>' +
       '<span class="rb-gear-dot" style="background:' + dot + '"></span>' +
       '<span class="rb-gear-info">' +
         '<span class="rb-gear-name">' + escapeHtml(gear.name) + '</span>' +
@@ -363,24 +377,27 @@
     var bodyRow = document.createElement('div');
     bodyRow.className = 'rb-rack-body-row';
 
+    var labelCol = document.createElement('div');
+    labelCol.className = 'rb-u-label-col';
+    bodyRow.appendChild(labelCol);
+
     var railLeft = document.createElement('div');
     railLeft.className = 'rb-rail';
     bodyRow.appendChild(railLeft);
 
     var body = document.createElement('div');
     body.className = 'rb-rack-body';
-    body.style.position = 'relative';
 
     var occ = computeOccupancy(rack);
 
     for (var u = 1; u <= rack.uHeight; u++) {
-      var row = document.createElement('div');
-      row.className = 'rb-u-row';
-
       var labelEl = document.createElement('div');
       labelEl.className = 'rb-u-label';
       labelEl.textContent = String(u);
-      row.appendChild(labelEl);
+      labelCol.appendChild(labelEl);
+
+      var row = document.createElement('div');
+      row.className = 'rb-u-row';
 
       var slotRow = document.createElement('div');
       slotRow.className = 'rb-slot-row';
@@ -446,8 +463,18 @@
     el.dataset.gearId = slot.gearId;
     var top = (slot.uPosition - 1) * U_PX;
     var height = gear.uHeight * U_PX;
-    var width = gear.width === 'half' ? HALF_W : FULL_W;
-    var left = LABEL_W + (slot.position === 'right' ? HALF_W : 0);
+    var width, left;
+    if (slot.position === 'full') {
+      // Bleed the image out over both rails so a device's own mounting-ear
+      // artwork lands on the rail instead of floating beside it. The U-number
+      // label lives outside the rail now (see renderRackFrameInner), so this
+      // bleed never has to worry about covering it.
+      left = -RAIL_W;
+      width = RAIL_W + FULL_W + RAIL_W;
+    } else {
+      width = HALF_W;
+      left = (slot.position === 'right' ? HALF_W : 0);
+    }
     el.style.top = top + 'px';
     el.style.left = left + 'px';
     el.style.width = width + 'px';
@@ -455,7 +482,7 @@
     el.title = gear.name;
 
     var img = document.createElement('img');
-    img.src = gear.image;
+    img.src = gearImageUrl(gear);
     img.alt = gear.name;
     img.draggable = false;
     el.appendChild(img);
@@ -481,7 +508,7 @@
     ghost.style.width = w + 'px';
     ghost.style.height = h + 'px';
     var img = document.createElement('img');
-    img.src = gear.image;
+    img.src = gearImageUrl(gear);
     img.alt = '';
     ghost.appendChild(img);
     document.body.appendChild(ghost);
@@ -735,6 +762,36 @@
     }
   }
 
+  // ================= Drag: sidebar resize =================
+
+  function startSidebarResizeDrag(e, handleEl) {
+    handleEl.classList.add('rb-resizing');
+    setBodyNoSelect(true);
+    dragCtx = {
+      type: 'sidebar-resize',
+      handleEl: handleEl,
+      startX: e.clientX,
+      startWidth: sidebarEl.getBoundingClientRect().width
+    };
+    document.addEventListener('pointermove', onDragMove);
+    document.addEventListener('pointerup', onDragEnd);
+    document.addEventListener('pointercancel', onDragEnd);
+  }
+
+  function moveSidebarResizeDrag(e) {
+    var w = dragCtx.startWidth + (e.clientX - dragCtx.startX);
+    w = Math.max(SIDEBAR_MIN_W, Math.min(SIDEBAR_MAX_W, w));
+    sidebarEl.style.width = w + 'px';
+  }
+
+  function finishSidebarResizeDrag() {
+    dragCtx.handleEl.classList.remove('rb-resizing');
+    setBodyNoSelect(false);
+    try {
+      localStorage.setItem(SIDEBAR_WIDTH_KEY, String(Math.round(sidebarEl.getBoundingClientRect().width)));
+    } catch (err) { /* non-critical */ }
+  }
+
   // ================= Drag dispatch =================
 
   function onDragMove(e) {
@@ -755,6 +812,8 @@
       moveRackDrag(e);
     } else if (dragCtx.type === 'resize') {
       moveResizeDrag(e);
+    } else if (dragCtx.type === 'sidebar-resize') {
+      moveSidebarResizeDrag(e);
     }
   }
 
@@ -768,6 +827,7 @@
     if (type === 'library' || type === 'placed') finishGearDrag(e);
     else if (type === 'rack') finishRackDrag();
     else if (type === 'resize') finishResizeDrag();
+    else if (type === 'sidebar-resize') finishSidebarResizeDrag();
 
     dragCtx = null;
   }
@@ -789,6 +849,9 @@
     if (dragCtx.type === 'resize') {
       var rack = state.racks.find(function (r) { return r.id === dragCtx.rackId; });
       if (rack) rack.uHeight = dragCtx.startUHeight;
+    }
+    if (dragCtx.type === 'sidebar-resize') {
+      sidebarEl.style.width = dragCtx.startWidth + 'px';
     }
     pendingSnapshot = null;
     render();
@@ -894,6 +957,9 @@
       var resizeHandle = e.target.closest('.rb-resize-handle');
       if (resizeHandle) { e.preventDefault(); startResizeDrag(e, resizeHandle); return; }
 
+      var sidebarResizeHandle = e.target.closest('.rb-sidebar-resize');
+      if (sidebarResizeHandle) { e.preventDefault(); startSidebarResizeDrag(e, sidebarResizeHandle); return; }
+
       var gearItem = e.target.closest('.rb-gear-item');
       if (gearItem) { e.preventDefault(); startLibraryGearDrag(e, gearItem); return; }
 
@@ -976,8 +1042,19 @@
 
   // ================= Init =================
 
+  function loadSidebarWidth() {
+    try {
+      var raw = localStorage.getItem(SIDEBAR_WIDTH_KEY);
+      var w = raw ? parseInt(raw, 10) : NaN;
+      if (Number.isFinite(w)) {
+        sidebarEl.style.width = Math.max(SIDEBAR_MIN_W, Math.min(SIDEBAR_MAX_W, w)) + 'px';
+      }
+    } catch (err) { /* ignore, use default width */ }
+  }
+
   function init() {
     cacheDom();
+    loadSidebarWidth();
     loadGearCatalog().then(function () {
       state = loadInitialState();
       lastSyncedSnapshot = null;

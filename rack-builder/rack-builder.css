@@ -10,7 +10,7 @@
 }
 
 .rb-app {
-  --rb-u: 72px;              /* 1U height at render scale (matches gear image spec) */
+  --rb-u: 40px;              /* 1U height at render scale -- matches true 19in-rail proportions (19/1.75 ~= 10.86:1 per U) */
   --rb-full-w: 380px;        /* full-width slot width */
   --rb-half-w: 190px;        /* half-width slot width */
   --rb-rail-w: 28px;
@@ -26,7 +26,7 @@
 
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 72px);
+  height: calc(100vh - 65px); /* 65px = site nav's actual rendered height (64px inner + 1px border) */
 }
 
 /* ---------- Toolbar ---------- */
@@ -121,6 +121,8 @@
 
 .rb-sidebar {
   width: var(--rb-sidebar-w);
+  min-width: 200px;
+  max-width: 560px;
   flex-shrink: 0;
   background: var(--rb-surface);
   border-right: 1px solid var(--rb-border);
@@ -128,6 +130,22 @@
   flex-direction: column;
   padding: 16px;
   overflow-y: auto;
+  position: relative;
+}
+
+.rb-sidebar-resize {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 10;
+}
+
+.rb-sidebar-resize:hover,
+.rb-sidebar-resize.rb-resizing {
+  background: rgba(192,98,46,0.3);
 }
 
 .rb-sidebar-search input {
@@ -210,6 +228,23 @@
   opacity: 0.35;
 }
 
+.rb-gear-thumb {
+  width: 46px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #101216;
+  border: 1px solid var(--rb-border);
+}
+
+.rb-gear-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .rb-gear-dot {
   width: 10px;
   height: 10px;
@@ -223,6 +258,7 @@
 }
 
 .rb-gear-name {
+  display: block;
   font-size: 0.82rem;
   font-weight: 600;
   white-space: nowrap;
@@ -231,8 +267,12 @@
 }
 
 .rb-gear-meta {
+  display: block;
   font-size: 0.7rem;
   color: var(--rb-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   margin-top: 2px;
 }
 
@@ -293,8 +333,11 @@
 }
 
 .rb-rack-name {
-  flex: 1;
-  min-width: 0;
+  flex: 0 0 auto;
+  width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 0.82rem;
   font-weight: 600;
   background: transparent;
@@ -312,6 +355,7 @@
 }
 
 .rb-rack-uheight {
+  margin-left: auto;
   font-size: 0.68rem;
   color: var(--rb-text-muted);
   white-space: nowrap;
@@ -366,7 +410,7 @@
     radial-gradient(circle 2.4px, rgba(0,0,0,0.7) 99%, transparent 100%);
   background-repeat: repeat-y, repeat-y;
   background-size: 100% var(--rb-u), 100% var(--rb-u);
-  background-position: center 11px, center calc(var(--rb-u) - 11px);
+  background-position: center 6px, center calc(var(--rb-u) - 6px);
   border-left: 1px solid rgba(255,255,255,0.04);
   border-right: 1px solid rgba(0,0,0,0.35);
 }
@@ -374,6 +418,8 @@
 .rb-rack-body {
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 2; /* lets full-width gear images bleed over the rails (see buildGearOverlay) and still paint above the right rail */
 }
 
 .rb-u-row {
@@ -386,15 +432,26 @@
   border-bottom: none;
 }
 
-.rb-u-label {
+.rb-u-label-col {
   width: 18px;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.rb-u-label {
+  height: var(--rb-u);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 9px;
-  color: rgba(255,255,255,0.32);
+  color: rgba(255,255,255,0.4);
   font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.rb-u-label:last-child {
+  border-bottom: none;
 }
 
 .rb-slot-row {
