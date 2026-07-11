@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="380" height="144" viewBox="0 0 380 144">
+  <rect width="380" height="144" fill="#2b2f36"/>
+  <rect width="6" height="144" fill="#2a6b5a"/>
+  <rect x="0.5" y="0.5" width="379" height="143" fill="none" stroke="#454b54" stroke-width="1"/>
+  <text x="193" y="68" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="600" fill="#e8e6e1">Compressor / Limiter</text>
+  <text x="193" y="88" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#9a9fa8">(Demo) · 2U full</text>
+</svg>

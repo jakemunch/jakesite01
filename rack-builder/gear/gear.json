@@ -1,0 +1,47 @@
+[
+  {
+    "id": "placeholder-wireless-half",
+    "name": "Wireless Receiver (Demo)",
+    "manufacturer": "Demo",
+    "category": "wireless",
+    "uHeight": 1,
+    "width": "half",
+    "image": "images/placeholder-wireless-half.svg"
+  },
+  {
+    "id": "placeholder-misc-half",
+    "name": "Blank Panel (Demo, half)",
+    "manufacturer": "Demo",
+    "category": "misc",
+    "uHeight": 1,
+    "width": "half",
+    "image": "images/placeholder-misc-half.svg"
+  },
+  {
+    "id": "placeholder-audio-2u",
+    "name": "Compressor / Limiter (Demo)",
+    "manufacturer": "Demo",
+    "category": "audio",
+    "uHeight": 2,
+    "width": "full",
+    "image": "images/placeholder-audio-2u.svg"
+  },
+  {
+    "id": "placeholder-power-1u",
+    "name": "Power Conditioner (Demo)",
+    "manufacturer": "Demo",
+    "category": "power",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/placeholder-power-1u.svg"
+  },
+  {
+    "id": "placeholder-fx-1u",
+    "name": "Multi-FX Processor (Demo)",
+    "manufacturer": "Demo",
+    "category": "fx",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/placeholder-fx-1u.svg"
+  }
+]
