@@ -47,6 +47,7 @@
   var lastSyncedSnapshot = null;
   var filterState = { search: '', category: 'all' };
   var dragCtx = null;
+  var topZCounter = 0;
 
   // ================= Utilities =================
 
@@ -308,9 +309,20 @@
 
   function renderCanvasRacks() {
     canvasEl.innerHTML = '';
-    state.racks.forEach(function (rack) {
-      canvasEl.appendChild(buildRackElement(rack));
+    state.racks.forEach(function (rack, index) {
+      canvasEl.appendChild(buildRackElement(rack, index));
     });
+    topZCounter = state.racks.length;
+  }
+
+  function bringRackToFront(rackId, rackEl) {
+    var idx = state.racks.findIndex(function (r) { return r.id === rackId; });
+    if (idx === -1) return;
+    var rack = state.racks.splice(idx, 1)[0];
+    state.racks.push(rack);
+    topZCounter += 1;
+    rackEl.style.zIndex = String(topZCounter);
+    applyMinorChange();
   }
 
   function fitCanvasToContent() {
@@ -335,12 +347,13 @@
     if (neededH > curH) canvasEl.style.height = neededH + 'px';
   }
 
-  function buildRackElement(rack) {
+  function buildRackElement(rack, index) {
     var el = document.createElement('div');
     el.className = 'rb-rack';
     el.dataset.rackId = rack.id;
     el.style.left = rack.x + 'px';
     el.style.top = rack.y + 'px';
+    el.style.zIndex = String(index + 1);
 
     var titlebar = document.createElement('div');
     titlebar.className = 'rb-rack-titlebar';
@@ -953,6 +966,9 @@
     document.addEventListener('pointerdown', function (e) {
       if (dragCtx) return;
       if (e.pointerType && e.pointerType !== 'mouse') return;
+
+      var rackEl = e.target.closest('.rb-rack');
+      if (rackEl) bringRackToFront(rackEl.dataset.rackId, rackEl);
 
       var resizeHandle = e.target.closest('.rb-resize-handle');
       if (resizeHandle) { e.preventDefault(); startResizeDrag(e, resizeHandle); return; }
