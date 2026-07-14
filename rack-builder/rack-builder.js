@@ -122,10 +122,12 @@
     return max;
   }
 
-  function addSlot(rackId, uPosition, position, gearId) {
+  function addSlot(rackId, uPosition, position, gearId, label) {
     var rack = state.racks.find(function (r) { return r.id === rackId; });
     if (!rack) return;
-    rack.slots.push({ uPosition: uPosition, gearId: gearId, position: position });
+    var slot = { uPosition: uPosition, gearId: gearId, position: position };
+    if (label) slot.label = label;
+    rack.slots.push(slot);
   }
 
   function removeSlot(rackId, uPosition, position) {
@@ -192,7 +194,9 @@
         return s && typeof s.gearId === 'string' && Number.isInteger(s.uPosition) &&
           (s.position === 'full' || s.position === 'left' || s.position === 'right');
       }).map(function (s) {
-        return { uPosition: s.uPosition, gearId: s.gearId, position: s.position };
+        var out = { uPosition: s.uPosition, gearId: s.gearId, position: s.position };
+        if (typeof s.label === 'string' && s.label.trim()) out.label = s.label.trim();
+        return out;
       }) : [];
       return {
         id: typeof r.id === 'string' && r.id ? r.id : generateId('rack'),
@@ -500,6 +504,16 @@
     img.draggable = false;
     el.appendChild(img);
 
+    if (gear.customLabel) {
+      var labelInput = document.createElement('input');
+      labelInput.type = 'text';
+      labelInput.className = 'rb-gear-custom-label';
+      labelInput.placeholder = 'Click to label';
+      labelInput.value = slot.label || '';
+      labelInput.setAttribute('aria-label', 'Custom label for ' + gear.name);
+      el.appendChild(labelInput);
+    }
+
     var removeBtn = document.createElement('button');
     removeBtn.type = 'button';
     removeBtn.className = 'rb-gear-remove';
@@ -627,12 +641,17 @@
     var position = placedEl.dataset.position;
     var gear = gearById[placedEl.dataset.gearId];
     if (!gear) return;
+    var sourceRack = state.racks.find(function (r) { return r.id === rackId; });
+    var sourceSlot = sourceRack && sourceRack.slots.find(function (s) {
+      return s.uPosition === uPosition && s.position === position;
+    });
     dragCtx = {
       type: 'placed',
       gearId: gear.id,
       sourceRackId: rackId,
       sourceUPosition: uPosition,
       sourcePosition: position,
+      sourceLabel: sourceSlot && sourceSlot.label,
       excludeSlot: { rackId: rackId, uPosition: uPosition, position: position },
       pointerId: e.pointerId,
       sourcePlacedEl: placedEl,
@@ -667,7 +686,7 @@
     if (dragCtx.type === 'placed') {
       removeSlot(dragCtx.sourceRackId, dragCtx.sourceUPosition, dragCtx.sourcePosition);
     }
-    addSlot(hover.rackId, hover.uPosition, hover.targetPosition, dragCtx.gearId);
+    addSlot(hover.rackId, hover.uPosition, hover.targetPosition, dragCtx.gearId, dragCtx.sourceLabel);
     commitChange();
   }
 
@@ -980,7 +999,11 @@
       if (gearItem) { e.preventDefault(); startLibraryGearDrag(e, gearItem); return; }
 
       var placedGear = e.target.closest('.rb-gear-placed');
-      if (placedGear && !e.target.closest('.rb-gear-remove')) { e.preventDefault(); startPlacedGearDrag(e, placedGear); return; }
+      if (placedGear && !e.target.closest('.rb-gear-remove') && !e.target.closest('.rb-gear-custom-label')) {
+        e.preventDefault();
+        startPlacedGearDrag(e, placedGear);
+        return;
+      }
 
       var titlebar = e.target.closest('.rb-rack-titlebar');
       if (titlebar && !e.target.closest('.rb-rack-name') && !e.target.closest('.rb-rack-delete')) {
@@ -1008,23 +1031,46 @@
     });
 
     document.addEventListener('focusout', function (e) {
-      var input = e.target.closest ? e.target.closest('.rb-rack-name') : null;
-      if (!input) return;
-      var rackEl = input.closest('.rb-rack');
-      var rack = state.racks.find(function (r) { return r.id === rackEl.dataset.rackId; });
-      if (!rack) return;
-      var newName = input.value.trim() || 'Untitled rack';
-      if (newName !== rack.name) {
-        rack.name = newName;
-        applyMinorChange();
-      } else {
-        input.value = rack.name;
+      var nameInput = e.target.closest ? e.target.closest('.rb-rack-name') : null;
+      if (nameInput) {
+        var rackEl = nameInput.closest('.rb-rack');
+        var rack = state.racks.find(function (r) { return r.id === rackEl.dataset.rackId; });
+        if (!rack) return;
+        var newName = nameInput.value.trim() || 'Untitled rack';
+        if (newName !== rack.name) {
+          rack.name = newName;
+          applyMinorChange();
+        } else {
+          nameInput.value = rack.name;
+        }
+        return;
+      }
+
+      var labelInput = e.target.closest ? e.target.closest('.rb-gear-custom-label') : null;
+      if (labelInput) {
+        var placedEl = labelInput.closest('.rb-gear-placed');
+        if (!placedEl) return;
+        var placedRack = state.racks.find(function (r) { return r.id === placedEl.dataset.rackId; });
+        if (!placedRack) return;
+        var uPosition = parseInt(placedEl.dataset.uPosition, 10);
+        var position = placedEl.dataset.position;
+        var slot = placedRack.slots.find(function (s) { return s.uPosition === uPosition && s.position === position; });
+        if (!slot) return;
+        var newLabel = labelInput.value.trim();
+        var oldLabel = slot.label || '';
+        if (newLabel !== oldLabel) {
+          if (newLabel) slot.label = newLabel; else delete slot.label;
+          applyMinorChange();
+        }
       }
     });
 
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && dragCtx) { cancelActiveDrag(); return; }
-      if (e.target.matches('.rb-rack-name') && e.key === 'Enter') { e.target.blur(); return; }
+      if ((e.target.matches('.rb-rack-name') || e.target.matches('.rb-gear-custom-label')) && e.key === 'Enter') {
+        e.target.blur();
+        return;
+      }
       if (e.target.matches('input, textarea, select')) return;
       var isUndo = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z';
       if (isUndo) { e.preventDefault(); performUndo(); }

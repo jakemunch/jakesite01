@@ -232,5 +232,43 @@
     "uHeight": 1,
     "width": "full",
     "image": "images/sennheiser-asp1-assembly.svg"
+  },
+  {
+    "id": "tascam-cd-a500",
+    "name": "Tascam CD-A500",
+    "manufacturer": "Tascam",
+    "category": "audio",
+    "uHeight": 3,
+    "width": "full",
+    "image": "images/tascam-cd-a500.png"
+  },
+  {
+    "id": "tascam-cd-rw750",
+    "name": "Tascam CD-RW750",
+    "manufacturer": "Tascam",
+    "category": "audio",
+    "uHeight": 2,
+    "width": "full",
+    "image": "images/tascam-cd-rw750.png"
+  },
+  {
+    "id": "generic-label-1u",
+    "name": "Generic Labeled Unit (1U)",
+    "manufacturer": "Generic",
+    "category": "misc",
+    "uHeight": 1,
+    "width": "full",
+    "image": "images/generic-label-1u.svg",
+    "customLabel": true
+  },
+  {
+    "id": "generic-label-2u",
+    "name": "Generic Labeled Unit (2U)",
+    "manufacturer": "Generic",
+    "category": "misc",
+    "uHeight": 2,
+    "width": "full",
+    "image": "images/generic-label-2u.svg",
+    "customLabel": true
   }
 ]
