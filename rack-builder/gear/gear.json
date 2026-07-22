@@ -51,7 +51,8 @@
     "category": "power",
     "uHeight": 1,
     "width": "full",
-    "image": "images/furman-m-8x2.png"
+    "image": "images/furman-m-8x2.png",
+    "tooltipMode": "name"
   },
   {
     "id": "radial-power-1",
@@ -60,7 +61,8 @@
     "category": "power",
     "uHeight": 1,
     "width": "full",
-    "image": "images/radial-power-1.png"
+    "image": "images/radial-power-1.png",
+    "tooltipMode": "name"
   },
   {
     "id": "warm-audio-wa-2a",
@@ -123,7 +125,8 @@
     "category": "misc",
     "uHeight": 1,
     "width": "full",
-    "image": "images/rack-drawer-1u.svg"
+    "image": "images/rack-drawer-1u.svg",
+    "tooltipMode": "contents"
   },
   {
     "id": "rack-drawer-2u",
@@ -132,7 +135,8 @@
     "category": "misc",
     "uHeight": 2,
     "width": "full",
-    "image": "images/rack-drawer-2u.svg"
+    "image": "images/rack-drawer-2u.svg",
+    "tooltipMode": "contents"
   },
   {
     "id": "rack-drawer-3u",
@@ -141,7 +145,8 @@
     "category": "misc",
     "uHeight": 3,
     "width": "full",
-    "image": "images/rack-drawer-3u.svg"
+    "image": "images/rack-drawer-3u.svg",
+    "tooltipMode": "contents"
   },
   {
     "id": "rack-drawer-4u",
@@ -150,7 +155,8 @@
     "category": "misc",
     "uHeight": 4,
     "width": "full",
-    "image": "images/rack-drawer-4u.svg"
+    "image": "images/rack-drawer-4u.svg",
+    "tooltipMode": "contents"
   },
   {
     "id": "blank-panel-1u-full",
@@ -159,7 +165,8 @@
     "category": "misc",
     "uHeight": 1,
     "width": "full",
-    "image": "images/blank-panel-1u-full.svg"
+    "image": "images/blank-panel-1u-full.svg",
+    "tooltipMode": "none"
   },
   {
     "id": "blank-panel-1u-half",
@@ -168,7 +175,8 @@
     "category": "misc",
     "uHeight": 1,
     "width": "half",
-    "image": "images/blank-panel-1u-half.svg"
+    "image": "images/blank-panel-1u-half.svg",
+    "tooltipMode": "none"
   },
   {
     "id": "korg-dtr-2000",
