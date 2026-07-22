@@ -655,3 +655,289 @@
   height: 100%;
   object-fit: fill;
 }
+
+/* ---------- Patch tooltip ---------- */
+/* NOTE: .rb-tooltip / .rb-modal* are appended directly to <body> (like the
+   drag ghost), outside .rb-app's DOM subtree. CSS custom properties only
+   cascade to descendants of the element that defines them, so the --rb-*
+   variables declared on .rb-app do NOT resolve here -- every color below
+   is a literal value on purpose, matching .rb-app's token values. */
+
+.rb-tooltip {
+  position: fixed;
+  z-index: 1100;
+  min-width: 220px;
+  max-width: 320px;
+  background: #2c2f36;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 8px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.55);
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  color: var(--color-dark-text);
+  cursor: pointer;
+}
+
+.rb-tooltip.rb-tooltip-editing {
+  max-width: 360px;
+  cursor: default;
+}
+
+.rb-tooltip-header {
+  font-weight: 700;
+  font-size: 0.82rem;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.09);
+}
+
+.rb-tooltip-empty {
+  margin: 0;
+  color: #9aa0aa;
+  font-style: italic;
+}
+
+.rb-tooltip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rb-tooltip-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.rb-tooltip-arrow {
+  color: var(--color-accent);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.rb-tooltip-desc {
+  font-weight: 600;
+}
+
+.rb-tooltip-patchto {
+  margin: 0 0 2px 18px;
+  color: #9aa0aa;
+}
+
+.rb-tooltip-edit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.09);
+}
+
+.rb-tooltip-close {
+  background: transparent;
+  border: none;
+  color: #9aa0aa;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.rb-tooltip-close:hover {
+  color: #e05a4f;
+  background: rgba(224,90,79,0.12);
+}
+
+.rb-tooltip-edit-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.rb-tooltip-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.rb-conn-dir-toggle {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-family: var(--font-body);
+  padding: 4px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: #1a1c20;
+  color: var(--color-dark-text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.rb-conn-dir-toggle:hover {
+  border-color: var(--color-accent);
+}
+
+.rb-conn-desc,
+.rb-conn-to {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.72rem;
+  font-family: var(--font-body);
+  padding: 4px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: #1a1c20;
+  color: var(--color-dark-text);
+}
+
+.rb-conn-desc:focus,
+.rb-conn-to:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.rb-conn-remove {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.rb-conn-remove:hover {
+  background: #c0392b;
+}
+
+.rb-tooltip-add-row {
+  font-size: 0.72rem;
+  font-family: var(--font-body);
+  color: var(--color-primary);
+  background: transparent;
+  border: 1px dashed rgba(255,255,255,0.18);
+  border-radius: 3px;
+  padding: 5px 8px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.rb-tooltip-add-row:hover {
+  border-color: var(--color-primary);
+  background: rgba(192,98,46,0.1);
+}
+
+/* ---------- Patch list modal ---------- */
+
+.rb-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.rb-modal {
+  width: 100%;
+  max-width: 760px;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #2c2f36;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 8px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  padding: 20px 24px;
+  color: var(--color-dark-text);
+}
+
+.rb-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.rb-modal-header h2 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.rb-modal-close {
+  background: transparent;
+  border: none;
+  color: #9aa0aa;
+  cursor: pointer;
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 2px 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.rb-modal-close:hover {
+  color: #e05a4f;
+  background: rgba(224,90,79,0.12);
+}
+
+.rb-modal-empty {
+  color: #9aa0aa;
+  text-align: center;
+  padding: 24px 8px;
+}
+
+.rb-modal-table-wrap {
+  overflow: auto;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.rb-modal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.rb-modal-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #9aa0aa;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.18);
+  white-space: nowrap;
+}
+
+.rb-modal-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.09);
+  vertical-align: top;
+}
+
+.rb-modal-table tbody tr:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.rb-modal-arrow {
+  color: var(--color-accent);
+  font-weight: 700;
+  text-align: center;
+}
