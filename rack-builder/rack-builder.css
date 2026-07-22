@@ -683,6 +683,10 @@
   cursor: default;
 }
 
+.rb-tooltip.rb-tooltip-name-only {
+  cursor: default;
+}
+
 .rb-tooltip-header {
   font-weight: 700;
   font-size: 0.82rem;
@@ -722,6 +726,29 @@
 .rb-tooltip-patchto {
   margin: 0 0 2px 18px;
   color: #9aa0aa;
+}
+
+.rb-tooltip-contents-text {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.rb-tooltip-contents-input {
+  width: 100%;
+  min-height: 70px;
+  resize: vertical;
+  font-size: 0.75rem;
+  font-family: var(--font-body);
+  padding: 6px 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: #1a1c20;
+  color: var(--color-dark-text);
+}
+
+.rb-tooltip-contents-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
 }
 
 .rb-tooltip-edit-header {

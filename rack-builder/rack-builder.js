@@ -131,12 +131,13 @@
     return max;
   }
 
-  function addSlot(rackId, uPosition, position, gearId, label, connections) {
+  function addSlot(rackId, uPosition, position, gearId, label, connections, contents) {
     var rack = state.racks.find(function (r) { return r.id === rackId; });
     if (!rack) return;
     var slot = { uPosition: uPosition, gearId: gearId, position: position };
     if (label) slot.label = label;
     if (connections && connections.length) slot.connections = deepClone(connections);
+    if (contents) slot.contents = contents;
     rack.slots.push(slot);
   }
 
@@ -220,6 +221,7 @@
           });
           if (conns.length) out.connections = conns;
         }
+        if (typeof s.contents === 'string' && s.contents.trim()) out.contents = s.contents.trim();
         return out;
       }) : [];
       return {
@@ -545,12 +547,14 @@
     removeBtn.setAttribute('aria-label', 'Remove ' + gear.name);
     el.appendChild(removeBtn);
 
-    el.addEventListener('mouseenter', function () {
-      onPlacedGearHoverEnter(el, rack.id, slot.uPosition, slot.position, slot.gearId);
-    });
-    el.addEventListener('mouseleave', function () {
-      onPlacedGearHoverLeave(rack.id, slot.uPosition, slot.position);
-    });
+    if (gear.tooltipMode !== 'none') {
+      el.addEventListener('mouseenter', function () {
+        onPlacedGearHoverEnter(el, rack.id, slot.uPosition, slot.position, slot.gearId);
+      });
+      el.addEventListener('mouseleave', function () {
+        onPlacedGearHoverLeave(rack.id, slot.uPosition, slot.position);
+      });
+    }
 
     return el;
   }
@@ -646,24 +650,41 @@
     ensureTooltipEl();
     var gear = gearById[tooltipState.gearId];
     var slot = findSlot(tooltipState.rackId, tooltipState.uPosition, tooltipState.position);
-    var conns = (slot && slot.connections) || [];
     var name = gear ? gear.name : 'Unknown device';
-
     var html = '<div class="rb-tooltip-header">' + escapeHtml(name) + '</div>';
-    if (!conns.length) {
-      html += '<p class="rb-tooltip-empty">No patch info yet — click to add.</p>';
+
+    if (gear && gear.tooltipMode === 'name') {
+      // Nothing to add or edit for this device -- name only, not clickable.
+      tooltipEl.classList.remove('rb-tooltip-editing');
+      tooltipEl.classList.add('rb-tooltip-name-only');
+      tooltipEl.innerHTML = html;
+      tooltipEl.onclick = null;
+      return;
+    }
+    tooltipEl.classList.remove('rb-tooltip-name-only');
+
+    if (gear && gear.tooltipMode === 'contents') {
+      var contents = (slot && slot.contents) || '';
+      html += contents
+        ? '<p class="rb-tooltip-contents-text">' + escapeHtml(contents) + '</p>'
+        : '<p class="rb-tooltip-empty">No contents noted yet — click to add.</p>';
     } else {
-      html += '<div class="rb-tooltip-list">';
-      conns.forEach(function (c) {
-        var arrow = c.direction === 'out' ? '→' : '←';
-        html +=
-          '<div class="rb-tooltip-row">' +
-            '<span class="rb-tooltip-arrow">' + arrow + '</span>' +
-            '<span class="rb-tooltip-desc">' + escapeHtml(c.description || '(no description)') + '</span>' +
-          '</div>' +
-          '<div class="rb-tooltip-patchto">' + escapeHtml(c.patchedTo || '(not specified)') + '</div>';
-      });
-      html += '</div>';
+      var conns = (slot && slot.connections) || [];
+      if (!conns.length) {
+        html += '<p class="rb-tooltip-empty">No patch info yet — click to add.</p>';
+      } else {
+        html += '<div class="rb-tooltip-list">';
+        conns.forEach(function (c) {
+          var arrow = c.direction === 'out' ? '→' : '←';
+          html +=
+            '<div class="rb-tooltip-row">' +
+              '<span class="rb-tooltip-arrow">' + arrow + '</span>' +
+              '<span class="rb-tooltip-desc">' + escapeHtml(c.description || '(no description)') + '</span>' +
+            '</div>' +
+            '<div class="rb-tooltip-patchto">' + escapeHtml(c.patchedTo || '(not specified)') + '</div>';
+        });
+        html += '</div>';
+      }
     }
     tooltipEl.classList.remove('rb-tooltip-editing');
     tooltipEl.innerHTML = html;
@@ -722,6 +743,8 @@
 
   function enterTooltipEditMode() {
     if (!tooltipState || tooltipState.mode === 'edit') return;
+    var gear = gearById[tooltipState.gearId];
+    if (gear && gear.tooltipMode === 'name') return; // nothing to edit for this device
     tooltipState.mode = 'edit';
     if (tooltipHideTimer) { clearTimeout(tooltipHideTimer); tooltipHideTimer = null; }
     cancelPendingTooltipShow();
@@ -776,18 +799,7 @@
     return row;
   }
 
-  function renderTooltipEdit() {
-    ensureTooltipEl();
-    var slot = findSlot(tooltipState.rackId, tooltipState.uPosition, tooltipState.position);
-    if (!slot) { finishTooltipEdit(false); return; }
-    if (!slot.connections) slot.connections = [];
-    var gear = gearById[tooltipState.gearId];
-    var name = gear ? gear.name : 'Unknown device';
-
-    tooltipEl.classList.add('rb-tooltip-editing');
-    tooltipEl.innerHTML = '';
-    tooltipEl.onclick = null;
-
+  function buildTooltipEditHeader(name) {
     var header = document.createElement('div');
     header.className = 'rb-tooltip-edit-header';
     var headerName = document.createElement('span');
@@ -797,10 +809,35 @@
     closeBtn.type = 'button';
     closeBtn.className = 'rb-tooltip-close';
     closeBtn.textContent = '×';
-    closeBtn.setAttribute('aria-label', 'Close patch editor');
+    closeBtn.setAttribute('aria-label', 'Close editor');
     closeBtn.addEventListener('click', function () { finishTooltipEdit(false); });
     header.appendChild(closeBtn);
-    tooltipEl.appendChild(header);
+    return header;
+  }
+
+  function renderTooltipEdit() {
+    ensureTooltipEl();
+    var slot = findSlot(tooltipState.rackId, tooltipState.uPosition, tooltipState.position);
+    if (!slot) { finishTooltipEdit(false); return; }
+    var gear = gearById[tooltipState.gearId];
+    var name = gear ? gear.name : 'Unknown device';
+
+    tooltipEl.classList.add('rb-tooltip-editing');
+    tooltipEl.innerHTML = '';
+    tooltipEl.onclick = null;
+    tooltipEl.appendChild(buildTooltipEditHeader(name));
+
+    if (gear && gear.tooltipMode === 'contents') {
+      var textarea = document.createElement('textarea');
+      textarea.className = 'rb-tooltip-contents-input';
+      textarea.placeholder = "Describe what's in this drawer…";
+      textarea.value = slot.contents || '';
+      textarea.addEventListener('input', function () { slot.contents = textarea.value; });
+      tooltipEl.appendChild(textarea);
+      return;
+    }
+
+    if (!slot.connections) slot.connections = [];
 
     var rowsWrap = document.createElement('div');
     rowsWrap.className = 'rb-tooltip-edit-rows';
@@ -838,6 +875,10 @@
       // untouched device's data -- and a no-op open/close -- stay unchanged.
       var slot = findSlot(tooltipState.rackId, tooltipState.uPosition, tooltipState.position);
       if (slot && slot.connections && !slot.connections.length) delete slot.connections;
+      if (slot && typeof slot.contents === 'string') {
+        var trimmed = slot.contents.trim();
+        if (trimmed) slot.contents = trimmed; else delete slot.contents;
+      }
     }
 
     var changed = JSON.stringify(state) !== JSON.stringify(tooltipEditSnapshot);
@@ -1072,6 +1113,7 @@
       sourcePosition: position,
       sourceLabel: sourceSlot && sourceSlot.label,
       sourceConnections: sourceSlot && sourceSlot.connections,
+      sourceContents: sourceSlot && sourceSlot.contents,
       excludeSlot: { rackId: rackId, uPosition: uPosition, position: position },
       pointerId: e.pointerId,
       sourcePlacedEl: placedEl,
@@ -1106,7 +1148,7 @@
     if (dragCtx.type === 'placed') {
       removeSlot(dragCtx.sourceRackId, dragCtx.sourceUPosition, dragCtx.sourcePosition);
     }
-    addSlot(hover.rackId, hover.uPosition, hover.targetPosition, dragCtx.gearId, dragCtx.sourceLabel, dragCtx.sourceConnections);
+    addSlot(hover.rackId, hover.uPosition, hover.targetPosition, dragCtx.gearId, dragCtx.sourceLabel, dragCtx.sourceConnections, dragCtx.sourceContents);
     commitChange();
   }
 
