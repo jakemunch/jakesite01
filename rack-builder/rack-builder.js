@@ -34,7 +34,7 @@
   // ---------- DOM refs ----------
   var sidebarEl, gearListEl, searchInput, filterPillsEl;
   var canvasViewportEl, canvasEl;
-  var addRackBtn, undoBtn, exportBtn, importBtn, importInput;
+  var addRackBtn, undoBtn, exportBtn, importBtn, importInput, patchListBtn;
 
   // ---------- App state ----------
   var gearCatalog = [];
@@ -48,6 +48,15 @@
   var filterState = { search: '', category: 'all' };
   var dragCtx = null;
   var topZCounter = 0;
+
+  // ---------- Patch tooltip / patch list state ----------
+  var tooltipEl = null;
+  var tooltipState = null; // { rackId, uPosition, position, gearId, mode: 'view'|'edit', anchorEl }
+  var tooltipHideTimer = null;
+  var tooltipShowTimer = null; // debounces which device "wins" the shared tooltip -- see onPlacedGearHoverEnter
+  var pendingShowKey = null;
+  var tooltipEditSnapshot = null; // pre-edit deep clone of state, used only by the tooltip editor
+  var patchListOverlayEl = null;
 
   // ================= Utilities =================
 
@@ -122,11 +131,12 @@
     return max;
   }
 
-  function addSlot(rackId, uPosition, position, gearId, label) {
+  function addSlot(rackId, uPosition, position, gearId, label, connections) {
     var rack = state.racks.find(function (r) { return r.id === rackId; });
     if (!rack) return;
     var slot = { uPosition: uPosition, gearId: gearId, position: position };
     if (label) slot.label = label;
+    if (connections && connections.length) slot.connections = deepClone(connections);
     rack.slots.push(slot);
   }
 
@@ -196,6 +206,20 @@
       }).map(function (s) {
         var out = { uPosition: s.uPosition, gearId: s.gearId, position: s.position };
         if (typeof s.label === 'string' && s.label.trim()) out.label = s.label.trim();
+        if (Array.isArray(s.connections)) {
+          var conns = s.connections.filter(function (c) {
+            return c && (c.direction === 'in' || c.direction === 'out') &&
+              (typeof c.description === 'string') && (typeof c.patchedTo === 'string');
+          }).map(function (c) {
+            return {
+              id: typeof c.id === 'string' && c.id ? c.id : generateId('conn'),
+              direction: c.direction,
+              description: c.description.trim(),
+              patchedTo: c.patchedTo.trim()
+            };
+          });
+          if (conns.length) out.connections = conns;
+        }
         return out;
       }) : [];
       return {
@@ -496,7 +520,6 @@
     el.style.left = left + 'px';
     el.style.width = width + 'px';
     el.style.height = height + 'px';
-    el.title = gear.name;
 
     var img = document.createElement('img');
     img.src = gearImageUrl(gear);
@@ -522,7 +545,403 @@
     removeBtn.setAttribute('aria-label', 'Remove ' + gear.name);
     el.appendChild(removeBtn);
 
+    el.addEventListener('mouseenter', function () {
+      onPlacedGearHoverEnter(el, rack.id, slot.uPosition, slot.position, slot.gearId);
+    });
+    el.addEventListener('mouseleave', function () {
+      onPlacedGearHoverLeave(rack.id, slot.uPosition, slot.position);
+    });
+
     return el;
+  }
+
+  function findSlot(rackId, uPosition, position) {
+    var rack = state.racks.find(function (r) { return r.id === rackId; });
+    if (!rack) return null;
+    return rack.slots.find(function (s) { return s.uPosition === uPosition && s.position === position; }) || null;
+  }
+
+  // ================= Patch tooltip =================
+  // Hover any placed device to see its patch connections (freeform, per-placement
+  // text entered by the user -- see slot.connections). Click anywhere in the
+  // tooltip to edit; the edit session reuses the app's existing snapshot/diff
+  // undo pattern (see finishResizeDrag) via a dedicated snapshot variable so it
+  // never collides with the drag system's shared pendingSnapshot.
+
+  function tooltipSlotKey(rackId, uPosition, position) {
+    return rackId + '|' + uPosition + '|' + position;
+  }
+
+  function cancelPendingTooltipShow() {
+    if (tooltipShowTimer) { clearTimeout(tooltipShowTimer); tooltipShowTimer = null; }
+    pendingShowKey = null;
+  }
+
+  function ensureTooltipEl() {
+    if (tooltipEl) return;
+    tooltipEl = document.createElement('div');
+    tooltipEl.className = 'rb-tooltip';
+    tooltipEl.style.display = 'none';
+    document.body.appendChild(tooltipEl);
+    tooltipEl.addEventListener('mouseenter', function () {
+      if (tooltipHideTimer) { clearTimeout(tooltipHideTimer); tooltipHideTimer = null; }
+      // Reaching the tooltip itself always wins: abandon any pending switch
+      // to a neighboring device the cursor may have grazed on the way here
+      // (see onPlacedGearHoverEnter -- devices in a tightly packed rack can
+      // sit right behind this tooltip since it's narrower than a full-width
+      // device's rendered bleed width).
+      cancelPendingTooltipShow();
+    });
+    tooltipEl.addEventListener('mouseleave', function () {
+      if (!tooltipState || tooltipState.mode === 'edit') return;
+      tooltipHideTimer = setTimeout(function () { hideTooltip(); tooltipState = null; }, 150);
+    });
+  }
+
+  function showTooltip() {
+    ensureTooltipEl();
+    tooltipEl.style.display = 'block';
+  }
+
+  function hideTooltip() {
+    if (tooltipEl) tooltipEl.style.display = 'none';
+  }
+
+  function closeTooltipIfAny() {
+    cancelPendingTooltipShow();
+    if (!tooltipState) return;
+    if (tooltipState.mode === 'edit') {
+      finishTooltipEdit(false);
+    } else {
+      if (tooltipHideTimer) { clearTimeout(tooltipHideTimer); tooltipHideTimer = null; }
+      hideTooltip();
+      tooltipState = null;
+    }
+  }
+
+  function positionTooltip(anchorEl) {
+    ensureTooltipEl();
+    var rect = anchorEl.getBoundingClientRect();
+    tooltipEl.style.visibility = 'hidden';
+    tooltipEl.style.display = 'block';
+    var tw = tooltipEl.offsetWidth;
+    var th = tooltipEl.offsetHeight;
+    // Keep clear of the sticky site nav + app toolbar rather than clamping
+    // to the bare top of the viewport, so the tooltip never renders under
+    // (or visually fights with) those controls when the anchor device is
+    // near the top of the canvas.
+    var toolbarEl = document.querySelector('.rb-toolbar');
+    var minY = (toolbarEl ? toolbarEl.getBoundingClientRect().bottom : 0) + 8;
+    var x = rect.left + rect.width / 2 - tw / 2;
+    var y = rect.top - th - 10;
+    if (y < minY) y = rect.bottom + 10; // not enough room above -- show below instead
+    x = Math.max(8, Math.min(x, window.innerWidth - tw - 8));
+    y = Math.max(minY, Math.min(y, window.innerHeight - th - 8));
+    tooltipEl.style.left = x + 'px';
+    tooltipEl.style.top = y + 'px';
+    tooltipEl.style.visibility = 'visible';
+  }
+
+  function renderTooltipView() {
+    ensureTooltipEl();
+    var gear = gearById[tooltipState.gearId];
+    var slot = findSlot(tooltipState.rackId, tooltipState.uPosition, tooltipState.position);
+    var conns = (slot && slot.connections) || [];
+    var name = gear ? gear.name : 'Unknown device';
+
+    var html = '<div class="rb-tooltip-header">' + escapeHtml(name) + '</div>';
+    if (!conns.length) {
+      html += '<p class="rb-tooltip-empty">No patch info yet — click to add.</p>';
+    } else {
+      html += '<div class="rb-tooltip-list">';
+      conns.forEach(function (c) {
+        var arrow = c.direction === 'out' ? '→' : '←';
+        html +=
+          '<div class="rb-tooltip-row">' +
+            '<span class="rb-tooltip-arrow">' + arrow + '</span>' +
+            '<span class="rb-tooltip-desc">' + escapeHtml(c.description || '(no description)') + '</span>' +
+          '</div>' +
+          '<div class="rb-tooltip-patchto">' + escapeHtml(c.patchedTo || '(not specified)') + '</div>';
+      });
+      html += '</div>';
+    }
+    tooltipEl.classList.remove('rb-tooltip-editing');
+    tooltipEl.innerHTML = html;
+    tooltipEl.onclick = function () { enterTooltipEditMode(); };
+  }
+
+  function onPlacedGearHoverEnter(el, rackId, uPosition, position, gearId) {
+    if (dragCtx) return;
+
+    // Never let an incidental graze interrupt an active edit session --
+    // only explicit actions (click outside, Escape, the close button) end
+    // one. This also covers the same stacked-devices case as below: editing
+    // a device whose tooltip overlaps a neighbor shouldn't be knocked out
+    // of edit mode just because the cursor crossed that neighbor en route
+    // to a field inside the tooltip.
+    if (tooltipState && tooltipState.mode === 'edit') return;
+
+    var key = tooltipSlotKey(rackId, uPosition, position);
+    if (tooltipState && tooltipState.rackId === rackId && tooltipState.uPosition === uPosition && tooltipState.position === position) {
+      // Already showing this exact device; nothing to do.
+      cancelPendingTooltipShow();
+      return;
+    }
+
+    // Debounce which device "wins" the shared tooltip. In a tightly packed
+    // rack, this tooltip (capped at 320px) can sit over only the center of
+    // a full-width neighbor (rendered up to 436px wide with rail bleed), so
+    // moving the mouse toward the tooltip often clips a sliver of that
+    // neighbor first. Require a brief dwell before actually switching, so a
+    // transient graze doesn't steal the tooltip out from under the device
+    // the user actually meant to read/edit.
+    if (tooltipHideTimer) { clearTimeout(tooltipHideTimer); tooltipHideTimer = null; }
+    cancelPendingTooltipShow();
+    pendingShowKey = key;
+    tooltipShowTimer = setTimeout(function () {
+      tooltipShowTimer = null;
+      pendingShowKey = null;
+      tooltipState = { rackId: rackId, uPosition: uPosition, position: position, gearId: gearId, mode: 'view', anchorEl: el };
+      renderTooltipView();
+      positionTooltip(el);
+      showTooltip();
+    }, 90);
+  }
+
+  function onPlacedGearHoverLeave(rackId, uPosition, position) {
+    var key = tooltipSlotKey(rackId, uPosition, position);
+    if (pendingShowKey === key) cancelPendingTooltipShow();
+
+    if (!tooltipState || tooltipState.mode === 'edit') return;
+    if (tooltipState.rackId !== rackId || tooltipState.uPosition !== uPosition || tooltipState.position !== position) return;
+    tooltipHideTimer = setTimeout(function () {
+      hideTooltip();
+      tooltipState = null;
+    }, 150);
+  }
+
+  function enterTooltipEditMode() {
+    if (!tooltipState || tooltipState.mode === 'edit') return;
+    tooltipState.mode = 'edit';
+    if (tooltipHideTimer) { clearTimeout(tooltipHideTimer); tooltipHideTimer = null; }
+    cancelPendingTooltipShow();
+    tooltipEditSnapshot = deepClone(state);
+    renderTooltipEdit();
+    positionTooltip(tooltipState.anchorEl);
+  }
+
+  function buildConnectionRow(slot, conn) {
+    var row = document.createElement('div');
+    row.className = 'rb-tooltip-edit-row';
+
+    var dirBtn = document.createElement('button');
+    dirBtn.type = 'button';
+    dirBtn.className = 'rb-conn-dir-toggle';
+    dirBtn.textContent = conn.direction === 'out' ? '→ Out' : '← In';
+    dirBtn.addEventListener('click', function () {
+      conn.direction = conn.direction === 'out' ? 'in' : 'out';
+      dirBtn.textContent = conn.direction === 'out' ? '→ Out' : '← In';
+    });
+    row.appendChild(dirBtn);
+
+    var descInput = document.createElement('input');
+    descInput.type = 'text';
+    descInput.className = 'rb-conn-desc';
+    descInput.placeholder = 'e.g. Mic In (XLR L/R)';
+    descInput.value = conn.description || '';
+    descInput.addEventListener('input', function () { conn.description = descInput.value; });
+    row.appendChild(descInput);
+
+    var toInput = document.createElement('input');
+    toInput.type = 'text';
+    toInput.className = 'rb-conn-to';
+    toInput.placeholder = 'Patched to, e.g. XLR Patchbay, jacks 9–10';
+    toInput.value = conn.patchedTo || '';
+    toInput.addEventListener('input', function () { conn.patchedTo = toInput.value; });
+    row.appendChild(toInput);
+
+    var removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'rb-conn-remove';
+    removeBtn.textContent = '×';
+    removeBtn.setAttribute('aria-label', 'Remove connection');
+    removeBtn.addEventListener('click', function () {
+      var i = slot.connections.indexOf(conn);
+      if (i !== -1) slot.connections.splice(i, 1);
+      renderTooltipEdit();
+      positionTooltip(tooltipState.anchorEl);
+    });
+    row.appendChild(removeBtn);
+
+    return row;
+  }
+
+  function renderTooltipEdit() {
+    ensureTooltipEl();
+    var slot = findSlot(tooltipState.rackId, tooltipState.uPosition, tooltipState.position);
+    if (!slot) { finishTooltipEdit(false); return; }
+    if (!slot.connections) slot.connections = [];
+    var gear = gearById[tooltipState.gearId];
+    var name = gear ? gear.name : 'Unknown device';
+
+    tooltipEl.classList.add('rb-tooltip-editing');
+    tooltipEl.innerHTML = '';
+    tooltipEl.onclick = null;
+
+    var header = document.createElement('div');
+    header.className = 'rb-tooltip-edit-header';
+    var headerName = document.createElement('span');
+    headerName.textContent = name;
+    header.appendChild(headerName);
+    var closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'rb-tooltip-close';
+    closeBtn.textContent = '×';
+    closeBtn.setAttribute('aria-label', 'Close patch editor');
+    closeBtn.addEventListener('click', function () { finishTooltipEdit(false); });
+    header.appendChild(closeBtn);
+    tooltipEl.appendChild(header);
+
+    var rowsWrap = document.createElement('div');
+    rowsWrap.className = 'rb-tooltip-edit-rows';
+    slot.connections.forEach(function (conn) {
+      rowsWrap.appendChild(buildConnectionRow(slot, conn));
+    });
+    tooltipEl.appendChild(rowsWrap);
+
+    var addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'rb-tooltip-add-row';
+    addBtn.textContent = '+ Add connection';
+    addBtn.addEventListener('click', function () {
+      slot.connections.push({ id: generateId('conn'), direction: 'in', description: '', patchedTo: '' });
+      renderTooltipEdit();
+      positionTooltip(tooltipState.anchorEl);
+    });
+    tooltipEl.appendChild(addBtn);
+  }
+
+  function finishTooltipEdit(revert) {
+    if (revert) {
+      state = tooltipEditSnapshot;
+      tooltipEditSnapshot = null;
+      tooltipState = null;
+      hideTooltip();
+      render();
+      return;
+    }
+
+    if (tooltipState) {
+      // renderTooltipEdit() eagerly sets slot.connections = [] so there's
+      // always an array to push rows onto; if the user added nothing (or
+      // removed everything back down to zero), drop the key entirely so an
+      // untouched device's data -- and a no-op open/close -- stay unchanged.
+      var slot = findSlot(tooltipState.rackId, tooltipState.uPosition, tooltipState.position);
+      if (slot && slot.connections && !slot.connections.length) delete slot.connections;
+    }
+
+    var changed = JSON.stringify(state) !== JSON.stringify(tooltipEditSnapshot);
+    tooltipState = null;
+    hideTooltip();
+    if (changed) {
+      pendingSnapshot = tooltipEditSnapshot;
+      tooltipEditSnapshot = null;
+      commitChange();
+    } else {
+      tooltipEditSnapshot = null;
+    }
+  }
+
+  // ================= Patch list modal =================
+
+  function buildPatchListRows() {
+    var rows = [];
+    state.racks.forEach(function (rack) {
+      var slotsSorted = rack.slots.slice().sort(function (a, b) { return a.uPosition - b.uPosition; });
+      slotsSorted.forEach(function (slot) {
+        if (!slot.connections || !slot.connections.length) return;
+        var gear = gearById[slot.gearId];
+        var deviceName = gear ? gear.name : 'Unknown device';
+        if (slot.label) deviceName += ' (' + slot.label + ')';
+        slot.connections.forEach(function (conn) {
+          rows.push({
+            rackName: rack.name,
+            deviceName: deviceName,
+            direction: conn.direction,
+            description: conn.description,
+            patchedTo: conn.patchedTo
+          });
+        });
+      });
+    });
+    return rows;
+  }
+
+  function openPatchListModal() {
+    closeTooltipIfAny();
+
+    var overlay = document.createElement('div');
+    overlay.className = 'rb-modal-overlay';
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closePatchListModal();
+    });
+
+    var modal = document.createElement('div');
+    modal.className = 'rb-modal';
+
+    var header = document.createElement('div');
+    header.className = 'rb-modal-header';
+    var title = document.createElement('h2');
+    title.textContent = 'Patch List';
+    header.appendChild(title);
+    var closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'rb-modal-close';
+    closeBtn.textContent = '×';
+    closeBtn.setAttribute('aria-label', 'Close patch list');
+    closeBtn.addEventListener('click', closePatchListModal);
+    header.appendChild(closeBtn);
+    modal.appendChild(header);
+
+    var rows = buildPatchListRows();
+    if (!rows.length) {
+      var empty = document.createElement('p');
+      empty.className = 'rb-modal-empty';
+      empty.textContent = 'No patch connections have been added yet. Hover any placed device and click its tooltip to add one.';
+      modal.appendChild(empty);
+    } else {
+      var tableWrap = document.createElement('div');
+      tableWrap.className = 'rb-modal-table-wrap';
+      var table = document.createElement('table');
+      table.className = 'rb-modal-table';
+      table.innerHTML = '<thead><tr><th>Rack</th><th>Device</th><th></th><th>Description</th><th>Patched To</th></tr></thead>';
+      var tbody = document.createElement('tbody');
+      rows.forEach(function (r) {
+        var tr = document.createElement('tr');
+        var arrow = r.direction === 'out' ? '→' : '←';
+        tr.innerHTML =
+          '<td>' + escapeHtml(r.rackName) + '</td>' +
+          '<td>' + escapeHtml(r.deviceName) + '</td>' +
+          '<td class="rb-modal-arrow">' + arrow + '</td>' +
+          '<td>' + escapeHtml(r.description || '') + '</td>' +
+          '<td>' + escapeHtml(r.patchedTo || '') + '</td>';
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      tableWrap.appendChild(table);
+      modal.appendChild(tableWrap);
+    }
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    patchListOverlayEl = overlay;
+  }
+
+  function closePatchListModal() {
+    if (patchListOverlayEl) {
+      patchListOverlayEl.remove();
+      patchListOverlayEl = null;
+    }
   }
 
   // ================= Drag ghost =================
@@ -652,6 +1071,7 @@
       sourceUPosition: uPosition,
       sourcePosition: position,
       sourceLabel: sourceSlot && sourceSlot.label,
+      sourceConnections: sourceSlot && sourceSlot.connections,
       excludeSlot: { rackId: rackId, uPosition: uPosition, position: position },
       pointerId: e.pointerId,
       sourcePlacedEl: placedEl,
@@ -686,7 +1106,7 @@
     if (dragCtx.type === 'placed') {
       removeSlot(dragCtx.sourceRackId, dragCtx.sourceUPosition, dragCtx.sourcePosition);
     }
-    addSlot(hover.rackId, hover.uPosition, hover.targetPosition, dragCtx.gearId, dragCtx.sourceLabel);
+    addSlot(hover.rackId, hover.uPosition, hover.targetPosition, dragCtx.gearId, dragCtx.sourceLabel, dragCtx.sourceConnections);
     commitChange();
   }
 
@@ -979,12 +1399,18 @@
     exportBtn = document.getElementById('rb-export');
     importBtn = document.getElementById('rb-import-btn');
     importInput = document.getElementById('rb-import-input');
+    patchListBtn = document.getElementById('rb-patch-list');
   }
 
   function wireEvents() {
     document.addEventListener('pointerdown', function (e) {
       if (dragCtx) return;
       if (e.pointerType && e.pointerType !== 'mouse') return;
+
+      if (tooltipState && tooltipState.mode === 'edit' && !e.target.closest('.rb-tooltip')) {
+        finishTooltipEdit(false);
+        return;
+      }
 
       var rackEl = e.target.closest('.rb-rack');
       if (rackEl) bringRackToFront(rackEl.dataset.rackId, rackEl);
@@ -1066,12 +1492,15 @@
     });
 
     document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && patchListOverlayEl) { closePatchListModal(); return; }
+      if (e.key === 'Escape' && tooltipState && tooltipState.mode === 'edit') { finishTooltipEdit(true); return; }
       if (e.key === 'Escape' && dragCtx) { cancelActiveDrag(); return; }
       if ((e.target.matches('.rb-rack-name') || e.target.matches('.rb-gear-custom-label')) && e.key === 'Enter') {
         e.target.blur();
         return;
       }
       if (e.target.matches('input, textarea, select')) return;
+      if (tooltipState && tooltipState.mode === 'edit') return;
       var isUndo = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z';
       if (isUndo) { e.preventDefault(); performUndo(); }
     });
@@ -1099,6 +1528,11 @@
     importInput.addEventListener('change', function () {
       var file = importInput.files[0];
       if (file) doImportFile(file);
+    });
+    patchListBtn.addEventListener('click', openPatchListModal);
+
+    canvasViewportEl.addEventListener('scroll', function () {
+      closeTooltipIfAny();
     });
   }
 
