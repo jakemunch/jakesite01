@@ -7,6 +7,16 @@
 .dd-body {
   background: var(--color-dark-bg);
   color: var(--color-dark-text);
+  /* The app fills exactly 100vh below the nav (.dd-app's height: calc(100vh -
+     65px)), but the footer after it in document flow would otherwise still
+     push the page taller than 100vh, letting the whole document scroll a
+     few px. When that happens the canvas (with all its placed pieces) slides
+     up under the sticky, semi-transparent .main-nav instead of staying
+     clipped inside .dd-canvas-viewport's own scroll area, so pieces appear
+     to sit on top of the nav. Locking the page to the viewport height keeps
+     .dd-canvas-viewport as the only scrollable region. */
+  height: 100vh;
+  overflow: hidden;
 }
 
 .dd-app {
@@ -94,6 +104,17 @@
 .dd-btn-active {
   background: var(--color-accent);
   border-color: var(--color-accent);
+  color: #fff;
+}
+
+.dd-btn-danger {
+  border-color: rgba(224,90,79,0.4);
+  color: #e8a29b;
+}
+
+.dd-btn-danger:hover:not(:disabled) {
+  background: #c0392b;
+  border-color: #c0392b;
   color: #fff;
 }
 
