@@ -437,8 +437,16 @@
     if (panelState && panelState.kind === kind && panelState.id === piece.id) el.classList.add('dd-piece-selected');
     el.innerHTML =
       '<div class="dd-piece-stencil">' + renderStencil(kind, key) + '</div>' +
-      '<input type="text" class="dd-piece-label" placeholder="' + escapeHtml(t ? t.name : '') + '" value="' + escapeHtml(piece.label || '') + '" aria-label="Label">';
+      '<textarea class="dd-piece-label" placeholder="' + escapeHtml(t ? t.name : '') + '" aria-label="Label" rows="1">' + escapeHtml(piece.label || '') + '</textarea>';
     return el;
+  }
+
+  // Textareas don't grow with their content on their own -- re-measure and
+  // reset the height to the content's natural height so long, wrapped labels
+  // expand instead of scrolling or clipping.
+  function autoSizeLabel(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
   }
 
   function renderCanvas() {
@@ -446,6 +454,7 @@
     allPieces().forEach(function (item) {
       canvasEl.appendChild(buildPieceEl(item.kind, item.piece));
     });
+    canvasEl.querySelectorAll('.dd-piece-label').forEach(autoSizeLabel);
     fitCanvasToContent();
   }
 
@@ -463,6 +472,7 @@
     if (stencilWrap) stencilWrap.innerHTML = renderStencil(kind, keyOf(kind, piece));
     var labelInput = el.querySelector('.dd-piece-label');
     if (labelInput && document.activeElement !== labelInput) labelInput.value = piece.label || '';
+    if (labelInput) autoSizeLabel(labelInput);
     expandCanvasIfNeeded(box.left + box.w, box.top + box.h);
   }
 
@@ -1091,10 +1101,15 @@
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && dragCtx) { cancelActiveDrag(); return; }
       if (e.key === 'Escape' && panelState) { closePanel(true); return; }
-      if ((e.target.matches('.dd-piece-label') || e.target === kitNameInput) && e.key === 'Enter') { e.target.blur(); return; }
+      if ((e.target.matches('.dd-piece-label') || e.target === kitNameInput) && e.key === 'Enter') { e.preventDefault(); e.target.blur(); return; }
       if (e.target.matches('input, textarea, select')) return;
       var isUndo = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z';
       if (isUndo) { e.preventDefault(); performUndo(); }
+    });
+
+    document.addEventListener('input', function (e) {
+      var labelInput = e.target.closest ? e.target.closest('.dd-piece-label') : null;
+      if (labelInput) autoSizeLabel(labelInput);
     });
 
     undoBtn.addEventListener('click', performUndo);
