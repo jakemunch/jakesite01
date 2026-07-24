@@ -34,7 +34,7 @@
 
   // ---------- DOM refs ----------
   var sidebarEl, canvasViewportEl, canvasEl;
-  var undoBtn, exportBtn, importBtn, importInput, handednessBtn, snapBtn, kitNameInput;
+  var undoBtn, exportBtn, importBtn, importInput, handednessBtn, snapBtn, kitNameInput, clearAllBtn;
   var panelEl = null;
 
   // ---------- App state ----------
@@ -944,6 +944,24 @@
     if (wasPlacedOrLibrary) render();
   }
 
+  // ================= Clear all =================
+
+  function doClearAll() {
+    if (!state.drums.length && !state.cymbals.length) return;
+    var ok = window.confirm('Delete all drums and cymbals and start over? You can undo this with the Undo button right after.');
+    if (!ok) return;
+    if (panelState) {
+      panelState = null;
+      panelEditSnapshot = null;
+      if (panelEl) panelEl.style.display = 'none';
+    }
+    beginChange();
+    state.drums = [];
+    state.cymbals = [];
+    commitChange();
+    topZCounter = 0;
+  }
+
   // ================= Import / export =================
 
   function doExport() {
@@ -1008,6 +1026,7 @@
     handednessBtn = document.getElementById('dd-handedness');
     snapBtn = document.getElementById('dd-snap');
     kitNameInput = document.getElementById('dd-kit-name');
+    clearAllBtn = document.getElementById('dd-clear-all');
   }
 
   function wireEvents() {
@@ -1087,6 +1106,7 @@
     });
     handednessBtn.addEventListener('click', toggleHandedness);
     snapBtn.addEventListener('click', toggleSnap);
+    clearAllBtn.addEventListener('click', doClearAll);
 
     canvasViewportEl.addEventListener('scroll', function () {
       if (panelState) closePanel(false);
