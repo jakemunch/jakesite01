@@ -1,0 +1,509 @@
+/* ==========================================================================
+   Drumkit Designer — page-specific styles
+   Reuses site color/font tokens from ../styles.css (:root); adds a dark
+   app-specific token set scoped to .dd-app for the workspace itself.
+   ========================================================================== */
+
+.dd-body {
+  background: var(--color-dark-bg);
+  color: var(--color-dark-text);
+}
+
+.dd-app {
+  --dd-sidebar-w: 300px;
+  --dd-frame-bg: #1a1c20;
+  --dd-surface: #22252b;
+  --dd-surface-raised: #2c2f36;
+  --dd-border: rgba(255,255,255,0.09);
+  --dd-border-strong: rgba(255,255,255,0.18);
+  --dd-text-muted: #9aa0aa;
+
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 65px); /* 65px = site nav's actual rendered height (64px inner + 1px border) */
+}
+
+/* ---------- Toolbar ---------- */
+
+.dd-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: var(--dd-surface);
+  border-bottom: 1px solid var(--dd-border);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.dd-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dd-toolbar-title {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: var(--color-dark-text);
+  margin: 0;
+}
+
+.dd-kit-name {
+  width: 160px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 7px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--dd-border-strong);
+  background: var(--dd-frame-bg);
+  color: var(--color-dark-text);
+}
+
+.dd-kit-name:focus {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 1px;
+}
+
+.dd-btn {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--dd-border-strong);
+  background: rgba(255,255,255,0.05);
+  color: var(--color-dark-text);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.dd-btn:hover:not(:disabled) {
+  background: rgba(255,255,255,0.11);
+  border-color: rgba(255,255,255,0.3);
+}
+
+.dd-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dd-btn-active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+/* ---------- Small viewport note ---------- */
+
+.dd-small-viewport-note {
+  display: none;
+  margin: 0;
+  padding: 10px 20px;
+  background: var(--color-primary-light);
+  color: #3a2313;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .dd-small-viewport-note {
+    display: block;
+  }
+}
+
+/* ---------- Main layout ---------- */
+
+.dd-main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---------- Sidebar ---------- */
+
+.dd-sidebar {
+  width: var(--dd-sidebar-w);
+  min-width: 220px;
+  max-width: 480px;
+  flex-shrink: 0;
+  background: var(--dd-surface);
+  border-right: 1px solid var(--dd-border);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.dd-sidebar-resize {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 10;
+}
+
+.dd-sidebar-resize:hover,
+.dd-sidebar-resize.dd-resizing {
+  background: rgba(192,98,46,0.3);
+}
+
+.dd-sidebar-section + .dd-sidebar-section {
+  margin-top: 18px;
+}
+
+.dd-sidebar-heading {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1rem;
+  color: var(--color-dark-text);
+  margin: 0 0 10px;
+}
+
+.dd-inv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dd-inv-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 9px;
+  border-radius: var(--radius);
+  background: var(--dd-frame-bg);
+  border: 1px solid var(--dd-border);
+  cursor: grab;
+  touch-action: none;
+}
+
+.dd-inv-row:hover {
+  border-color: var(--color-primary);
+}
+
+.dd-inv-row.dd-dragging-source {
+  opacity: 0.35;
+}
+
+.dd-inv-thumb {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #101216;
+  border: 1px solid var(--dd-border);
+}
+
+.dd-inv-thumb svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.dd-inv-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dd-inv-name {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dd-inv-meta {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--dd-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.dd-inv-qty {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  cursor: default;
+}
+
+.dd-inv-qty-input {
+  width: 34px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  padding: 3px 4px;
+  text-align: center;
+  border-radius: 3px;
+  border: 1px solid var(--dd-border-strong);
+  background: var(--dd-surface-raised);
+  color: var(--color-dark-text);
+}
+
+.dd-inv-add {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  border: 1px solid var(--dd-border-strong);
+  background: var(--dd-surface-raised);
+  color: var(--color-dark-text);
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.dd-inv-add:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-light);
+  background: var(--color-primary);
+}
+
+.dd-sidebar-footer {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--dd-border);
+  font-size: 0.78rem;
+  color: var(--dd-text-muted);
+}
+
+.dd-sidebar-footer a {
+  color: var(--color-primary);
+}
+
+/* ---------- Canvas ---------- */
+
+.dd-canvas-viewport {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  background: #16181c;
+}
+
+.dd-canvas {
+  position: relative;
+  width: 1400px;
+  height: 900px;
+}
+
+.dd-canvas.dd-grid-on {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.07) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.07) 0 1px, transparent 1px 10px);
+}
+
+/* ---------- Placed pieces ---------- */
+
+.dd-piece {
+  position: absolute;
+  user-select: none;
+  cursor: grab;
+}
+
+.dd-piece.dd-piece-dragging {
+  cursor: grabbing;
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,0.55));
+}
+
+.dd-piece.dd-piece-selected {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: 50%;
+}
+
+.dd-piece.dd-piece-profile.dd-piece-selected {
+  border-radius: 8px;
+}
+
+.dd-piece-stencil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.dd-piece-stencil svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.dd-piece-label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: 82%;
+  max-width: 120px;
+  text-align: center;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #fff;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 11px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.6);
+  padding: 2px 4px;
+  border-radius: 3px;
+  cursor: text;
+}
+
+.dd-piece-label::placeholder {
+  color: rgba(255,255,255,0.65);
+  font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+}
+
+.dd-piece-label:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: rgba(0,0,0,0.45);
+}
+
+/* ---------- Stencil part colors ---------- */
+
+.dd-s-shell { fill: #2a2723; stroke: rgba(0,0,0,0.55); stroke-width: 2; }
+.dd-s-head { fill: #efe9dd; stroke: rgba(0,0,0,0.25); stroke-width: 1; }
+.dd-s-cym,
+.dd-s-cym-top,
+.dd-s-cym-under { fill: #cda758; stroke: #8a6d2e; stroke-width: 2; }
+.dd-s-cym-under { opacity: 0.7; }
+.dd-s-groove { fill: none; stroke: rgba(0,0,0,0.32); stroke-width: 1.5; }
+.dd-s-bell { fill: #8a6d2e; }
+.dd-s-bell-ring { fill: none; stroke: #8a6d2e; stroke-width: 2.5; }
+.dd-s-rim { stroke: rgba(255,255,255,0.28); stroke-width: 3; stroke-linecap: round; }
+
+/* ---------- Drag ghost ---------- */
+
+.dd-drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.85;
+}
+
+.dd-drag-ghost svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ---------- Properties panel ---------- */
+/* NOTE: .dd-panel is appended directly to <body> (like the drag ghost),
+   outside .dd-app's DOM subtree. CSS custom properties only cascade to
+   descendants of the element that defines them, so the --dd-* variables
+   declared on .dd-app do NOT resolve here -- every value below is either
+   a redeclared token or a literal, matching .dd-app's values on purpose. */
+
+.dd-panel {
+  --dd-surface-raised: #2c2f36;
+  --dd-border-strong: rgba(255,255,255,0.18);
+  --dd-text-muted: #9aa0aa;
+
+  position: fixed;
+  z-index: 1100;
+  width: 240px;
+  background: #2c2f36;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 8px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.55);
+  padding: 12px 14px;
+  font-size: 0.8rem;
+  color: var(--color-dark-text);
+}
+
+.dd-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.09);
+}
+
+.dd-panel-close {
+  background: transparent;
+  border: none;
+  color: #9aa0aa;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.dd-panel-close:hover {
+  color: #e05a4f;
+  background: rgba(224,90,79,0.12);
+}
+
+.dd-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 10px;
+}
+
+.dd-field-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dd-field-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #9aa0aa;
+}
+
+.dd-field-input {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: #1a1c20;
+  color: var(--color-dark-text);
+}
+
+.dd-field-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.dd-panel-delete {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  padding: 7px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(224,90,79,0.4);
+  background: rgba(224,90,79,0.12);
+  color: #e8a29b;
+  cursor: pointer;
+}
+
+.dd-panel-delete:hover {
+  background: #c0392b;
+  border-color: #c0392b;
+  color: #fff;
+}

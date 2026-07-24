@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive overhead drum-kit and cymbal layout designer.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'none'; frame-src 'none'; object-src 'none'; base-uri 'self';">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Drumkit Designer — Jake's Pro Music &amp; Audio Skills Center</title>
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <link rel="icon" href="../favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="stylesheet" href="../styles.css?v=2">
+  <link rel="stylesheet" href="drumkit-designer.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Libre+Franklin:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dd-body">
+
+  <!-- Navigation -->
+  <nav class="main-nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-logo">
+        <span class="logo-icon">♪</span>
+        <span class="logo-text">Jake's Pro Music &amp; Audio</span>
+      </a>
+      <button class="nav-toggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../services.html">Services</a></li>
+        <li><a href="../studio-services.html">Studio</a></li>
+        <li><a href="../testimonials.html">Testimonials</a></li>
+        <li><a href="../gallery.html">Gallery</a></li>
+        <li><a href="../gear.html">Gear</a></li>
+        <li><a href="../contact.html" class="nav-cta">Get in Touch</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="dd-app" id="dd-app">
+
+    <!-- Toolbar -->
+    <div class="dd-toolbar">
+      <div class="dd-toolbar-group">
+        <input type="text" class="dd-kit-name" id="dd-kit-name" aria-label="Kit name" value="Untitled Kit">
+        <button type="button" class="dd-btn" id="dd-undo" disabled>↺ Undo</button>
+      </div>
+      <h1 class="dd-toolbar-title">Drumkit Designer</h1>
+      <div class="dd-toolbar-group">
+        <button type="button" class="dd-btn" id="dd-handedness">⇄ Right-Handed</button>
+        <button type="button" class="dd-btn" id="dd-snap">Snap to grid</button>
+        <button type="button" class="dd-btn" id="dd-export">Export</button>
+        <button type="button" class="dd-btn" id="dd-import-btn">Import</button>
+        <input type="file" id="dd-import-input" accept="application/json" hidden>
+      </div>
+    </div>
+
+    <!-- Small viewport notice -->
+    <p class="dd-small-viewport-note">Drumkit Designer is designed for desktop screens. For the best experience, please switch to a larger display.</p>
+
+    <div class="dd-main">
+
+      <!-- Inventory Sidebar -->
+      <aside class="dd-sidebar">
+        <div class="dd-sidebar-section">
+          <h2 class="dd-sidebar-heading">Drums</h2>
+          <div class="dd-inv-list" id="dd-drum-list"></div>
+        </div>
+        <div class="dd-sidebar-section">
+          <h2 class="dd-sidebar-heading">Cymbals</h2>
+          <div class="dd-inv-list" id="dd-cymbal-list"></div>
+        </div>
+        <div class="dd-sidebar-footer">
+          <p>Don't see the piece you need? <a href="../contact.html">Request an addition →</a></p>
+        </div>
+        <div class="dd-sidebar-resize" id="dd-sidebar-resize" title="Drag to resize"></div>
+      </aside>
+
+      <!-- Canvas Workspace -->
+      <div class="dd-canvas-viewport" id="dd-canvas-viewport">
+        <div class="dd-canvas" id="dd-canvas"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="logo-icon">♪</span>
+          <span>Jake's Pro Music &amp; Audio Skills Center</span>
+        </div>
+        <div class="footer-links">
+          <a href="../index.html">Home</a>
+          <a href="../about.html">About</a>
+          <a href="../services.html">Services</a>
+          <a href="../studio-services.html">Studio</a>
+          <a href="../testimonials.html">Testimonials</a>
+          <a href="../gallery.html">Gallery</a>
+          <a href="../gear.html">Gear</a>
+          <a href="../contact.html">Contact</a>
+        </div>
+        <p class="footer-copy">&copy; 2026 Jake Munch. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../nav.js"></script>
+  <script src="drumkit-designer.js"></script>
+</body>
+</html>
