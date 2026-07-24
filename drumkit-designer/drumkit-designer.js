@@ -32,6 +32,21 @@
   var cymbalTypeByKey = {};
   CYMBAL_TYPES.forEach(function (t) { cymbalTypeByKey[t.category] = t; });
 
+  // Shell color presets, offered as quick-pick swatches in the properties
+  // panel (drums only -- heads stay their default color for now). A piece
+  // with no shellColor (null) falls back to the .dd-s-shell CSS default.
+  var SHELL_COLOR_PRESETS = [
+    { name: 'Black', hex: '#1a1a1a' },
+    { name: 'White', hex: '#f2f0ea' },
+    { name: 'Natural Wood', hex: '#8a5a34' },
+    { name: 'Red', hex: '#9b2f2f' },
+    { name: 'Blue', hex: '#24507a' },
+    { name: 'Green', hex: '#2f6b4a' },
+    { name: 'Silver', hex: '#b7b9bb' },
+    { name: 'Gold', hex: '#ad8a4d' },
+    { name: 'Purple', hex: '#5b3a7a' }
+  ];
+
   // ---------- DOM refs ----------
   var sidebarEl, canvasViewportEl, canvasEl;
   var undoBtn, exportBtn, importBtn, importInput, handednessBtn, snapBtn, kitNameInput, clearAllBtn;
@@ -78,6 +93,10 @@
 
   function clampInt(v, min, max) {
     return Math.round(clampNum(v, min, max));
+  }
+
+  function isValidHexColor(v) {
+    return typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v);
   }
 
   // ================= Data model helpers =================
@@ -129,7 +148,7 @@
     topZCounter += 1;
     if (kind === 'drum') {
       var t = drumTypeByKey[key];
-      return { id: generateId('drum'), type: key, label: '', diameter: t.defaultDiameter, depth: t.defaultDepth, x: x, y: y, z: topZCounter };
+      return { id: generateId('drum'), type: key, label: '', diameter: t.defaultDiameter, depth: t.defaultDepth, shellColor: null, x: x, y: y, z: topZCounter };
     }
     var t2 = cymbalTypeByKey[key];
     return { id: generateId('cym'), category: key, label: '', diameter: t2.defaultDiameter, x: x, y: y, z: topZCounter };
@@ -208,6 +227,7 @@
         label: typeof d.label === 'string' ? d.label.trim() : '',
         diameter: Number.isFinite(d.diameter) ? d.diameter : t.defaultDiameter,
         depth: Number.isFinite(d.depth) ? d.depth : t.defaultDepth,
+        shellColor: isValidHexColor(d.shellColor) ? d.shellColor.toLowerCase() : null,
         x: Number.isFinite(d.x) ? d.x : 500,
         y: Number.isFinite(d.y) ? d.y : 400,
         z: Number.isInteger(d.z) ? d.z : 0
@@ -273,20 +293,27 @@
   // viewBox and stretched to fit the actual pixel box via preserveAspectRatio
   //="none", so the same markup works at any diameter.
 
-  function drumOverheadSvg() {
+  // shellColor is either null (use the .dd-s-shell CSS default) or a
+  // pre-validated "#rrggbb" string (see isValidHexColor) -- callers must
+  // validate before this point, since it's concatenated directly into markup.
+  function shellStyleAttr(shellColor) {
+    return shellColor ? ' style="fill:' + shellColor + '"' : '';
+  }
+
+  function drumOverheadSvg(shellColor) {
     return '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
-      '<circle cx="50" cy="50" r="48" class="dd-s-shell"/>' +
+      '<circle cx="50" cy="50" r="48" class="dd-s-shell"' + shellStyleAttr(shellColor) + '/>' +
       '<circle cx="50" cy="50" r="40" class="dd-s-head"/>' +
       '</svg>';
   }
 
-  function bassProfileSvg() {
+  function bassProfileSvg(shellColor) {
     // Side-elevation icon: the shell's diameter runs left-right (its sides
     // face the sides of the page) and the depth (front/back head-to-head
     // axis) runs top-bottom, so the rim strokes sit on the top and bottom
     // edges rather than the left and right.
     return '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
-      '<rect x="3" y="3" width="94" height="94" rx="4" class="dd-s-shell"/>' +
+      '<rect x="3" y="3" width="94" height="94" rx="4" class="dd-s-shell"' + shellStyleAttr(shellColor) + '/>' +
       '<line x1="3" y1="15" x2="97" y2="15" class="dd-s-rim"/>' +
       '<line x1="3" y1="85" x2="97" y2="85" class="dd-s-rim"/>' +
       '</svg>';
@@ -387,8 +414,8 @@
     return crashSvg(); // crash + splash share the same treatment; size is the differentiator
   }
 
-  function renderStencil(kind, key) {
-    if (kind === 'drum') return isProfile(kind, key) ? bassProfileSvg() : drumOverheadSvg();
+  function renderStencil(kind, key, shellColor) {
+    if (kind === 'drum') return isProfile(kind, key) ? bassProfileSvg(shellColor) : drumOverheadSvg(shellColor);
     return cymbalStencilSvg(key);
   }
 
@@ -436,7 +463,7 @@
     el.style.zIndex = String(piece.z || 0);
     if (panelState && panelState.kind === kind && panelState.id === piece.id) el.classList.add('dd-piece-selected');
     el.innerHTML =
-      '<div class="dd-piece-stencil">' + renderStencil(kind, key) + '</div>' +
+      '<div class="dd-piece-stencil">' + renderStencil(kind, key, piece.shellColor) + '</div>' +
       '<textarea class="dd-piece-label" placeholder="' + escapeHtml(t ? t.name : '') + '" aria-label="Label" rows="1">' + escapeHtml(piece.label || '') + '</textarea>';
     return el;
   }
@@ -469,7 +496,7 @@
     el.style.width = box.w + 'px';
     el.style.height = box.h + 'px';
     var stencilWrap = el.querySelector('.dd-piece-stencil');
-    if (stencilWrap) stencilWrap.innerHTML = renderStencil(kind, keyOf(kind, piece));
+    if (stencilWrap) stencilWrap.innerHTML = renderStencil(kind, keyOf(kind, piece), piece.shellColor);
     var labelInput = el.querySelector('.dd-piece-label');
     if (labelInput && document.activeElement !== labelInput) labelInput.value = piece.label || '';
     if (labelInput) autoSizeLabel(labelInput);
@@ -575,6 +602,65 @@
     return input;
   }
 
+  function buildShellColorField(piece, kind, id) {
+    var row = document.createElement('div');
+    row.className = 'dd-field-row';
+    var label = document.createElement('span');
+    label.className = 'dd-field-label';
+    label.textContent = 'Shell Color';
+    row.appendChild(label);
+
+    var grid = document.createElement('div');
+    grid.className = 'dd-swatch-grid';
+
+    var defaultBtn = document.createElement('button');
+    defaultBtn.type = 'button';
+    defaultBtn.className = 'dd-swatch dd-swatch-default' + (!piece.shellColor ? ' dd-swatch-selected' : '');
+    defaultBtn.title = 'Default';
+    defaultBtn.setAttribute('aria-label', 'Default shell color');
+    defaultBtn.addEventListener('click', function () {
+      piece.shellColor = null;
+      renderPieceEl(kind, id);
+      renderPanel();
+    });
+    grid.appendChild(defaultBtn);
+
+    SHELL_COLOR_PRESETS.forEach(function (preset) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'dd-swatch' + (piece.shellColor === preset.hex ? ' dd-swatch-selected' : '');
+      btn.style.background = preset.hex;
+      btn.title = preset.name;
+      btn.setAttribute('aria-label', preset.name);
+      btn.addEventListener('click', function () {
+        piece.shellColor = preset.hex;
+        renderPieceEl(kind, id);
+        renderPanel();
+      });
+      grid.appendChild(btn);
+    });
+
+    var customInput = document.createElement('input');
+    customInput.type = 'color';
+    customInput.className = 'dd-swatch dd-swatch-custom';
+    customInput.title = 'Custom color';
+    customInput.setAttribute('aria-label', 'Custom shell color');
+    customInput.value = isValidHexColor(piece.shellColor) ? piece.shellColor : '#2a2723';
+    customInput.addEventListener('input', function () {
+      piece.shellColor = customInput.value;
+      renderPieceEl(kind, id);
+    });
+    customInput.addEventListener('change', function () {
+      piece.shellColor = customInput.value;
+      renderPieceEl(kind, id);
+      renderPanel();
+    });
+    grid.appendChild(customInput);
+
+    row.appendChild(grid);
+    return row;
+  }
+
   function renderPanel() {
     ensurePanelEl();
     var kind = panelState.kind, id = panelState.id;
@@ -614,6 +700,7 @@
         piece.depth = v;
         renderPieceEl(kind, id);
       })));
+      body.appendChild(buildShellColorField(piece, kind, id));
     }
     panelEl.appendChild(body);
 
