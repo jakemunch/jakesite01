@@ -148,7 +148,7 @@
     topZCounter += 1;
     if (kind === 'drum') {
       var t = drumTypeByKey[key];
-      return { id: generateId('drum'), type: key, label: '', diameter: t.defaultDiameter, depth: t.defaultDepth, shellColor: null, x: x, y: y, z: topZCounter };
+      return { id: generateId('drum'), type: key, label: '', diameter: t.defaultDiameter, depth: t.defaultDepth, shellColor: null, rotation: 0, x: x, y: y, z: topZCounter };
     }
     var t2 = cymbalTypeByKey[key];
     return { id: generateId('cym'), category: key, label: '', diameter: t2.defaultDiameter, x: x, y: y, z: topZCounter };
@@ -228,6 +228,7 @@
         diameter: Number.isFinite(d.diameter) ? d.diameter : t.defaultDiameter,
         depth: Number.isFinite(d.depth) ? d.depth : t.defaultDepth,
         shellColor: isValidHexColor(d.shellColor) ? d.shellColor.toLowerCase() : null,
+        rotation: Number.isFinite(d.rotation) ? ((d.rotation % 360) + 360) % 360 : 0,
         x: Number.isFinite(d.x) ? d.x : 500,
         y: Number.isFinite(d.y) ? d.y : 400,
         z: Number.isInteger(d.z) ? d.z : 0
@@ -419,6 +420,16 @@
     return cymbalStencilSvg(key);
   }
 
+  // Corner handles for freely rotating a piece (currently only offered on
+  // the bass drum's profile view -- see the `profile` check at the call
+  // site). They're plain children of .dd-piece so the CSS rotate transform
+  // applied to the piece carries them along to the visually-rotated corner.
+  function rotateHandlesHtml() {
+    return ['tl', 'tr', 'bl', 'br'].map(function (corner) {
+      return '<div class="dd-rotate-handle dd-rotate-' + corner + '" title="Drag to rotate" aria-hidden="true"></div>';
+    }).join('');
+  }
+
   // ================= Rendering =================
 
   function render() {
@@ -461,10 +472,12 @@
     el.style.width = box.w + 'px';
     el.style.height = box.h + 'px';
     el.style.zIndex = String(piece.z || 0);
+    if (profile) el.style.transform = 'rotate(' + (piece.rotation || 0) + 'deg)';
     if (panelState && panelState.kind === kind && panelState.id === piece.id) el.classList.add('dd-piece-selected');
     el.innerHTML =
       '<div class="dd-piece-stencil">' + renderStencil(kind, key, piece.shellColor) + '</div>' +
-      '<textarea class="dd-piece-label" placeholder="' + escapeHtml(t ? t.name : '') + '" aria-label="Label" rows="1">' + escapeHtml(piece.label || '') + '</textarea>';
+      '<textarea class="dd-piece-label" placeholder="' + escapeHtml(t ? t.name : '') + '" aria-label="Label" rows="1">' + escapeHtml(piece.label || '') + '</textarea>' +
+      (profile ? rotateHandlesHtml() : '');
     return el;
   }
 
@@ -495,6 +508,7 @@
     el.style.top = box.top + 'px';
     el.style.width = box.w + 'px';
     el.style.height = box.h + 'px';
+    if (isProfile(kind, keyOf(kind, piece))) el.style.transform = 'rotate(' + (piece.rotation || 0) + 'deg)';
     var stencilWrap = el.querySelector('.dd-piece-stencil');
     if (stencilWrap) stencilWrap.innerHTML = renderStencil(kind, keyOf(kind, piece), piece.shellColor);
     var labelInput = el.querySelector('.dd-piece-label');
@@ -787,7 +801,16 @@
     var minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs);
     var axis = (minX + maxX) / 2;
     beginChange();
-    pieces.forEach(function (item) { item.piece.x = 2 * axis - item.piece.x; });
+    pieces.forEach(function (item) {
+      item.piece.x = 2 * axis - item.piece.x;
+      // Mirroring reverses the visual sense of any rotation too, so a bass
+      // drum angled clockwise should read as angled counter-clockwise once
+      // the whole kit is flipped -- otherwise the flip would look wrong for
+      // any rotated piece even though its position mirrored correctly.
+      if (item.kind === 'drum' && Number.isFinite(item.piece.rotation)) {
+        item.piece.rotation = (360 - item.piece.rotation) % 360;
+      }
+    });
     state.handedness = state.handedness === 'left' ? 'right' : 'left';
     commitChange();
   }
@@ -890,6 +913,50 @@
       return;
     }
     openPanelFor(kind, id);
+  }
+
+  // ================= Drag: rotate handle (bass drum orientation) =================
+
+  function startRotateDrag(e, pieceEl, handleEl) {
+    var kind = pieceEl.dataset.kind, id = pieceEl.dataset.id;
+    var piece = findPiece(kind, id);
+    if (!piece) return;
+    handleEl.classList.add('dd-rotate-handle-active');
+    setBodyNoSelect(true);
+    // The rotation center is the box's own center regardless of its current
+    // angle -- rotating a rect around its own midpoint is point-symmetric, so
+    // getBoundingClientRect()'s center matches the true pivot at any angle.
+    var rect = pieceEl.getBoundingClientRect();
+    var centerX = rect.left + rect.width / 2;
+    var centerY = rect.top + rect.height / 2;
+    dragCtx = {
+      type: 'rotate', kind: kind, id: id, pieceEl: pieceEl, handleEl: handleEl,
+      pointerId: e.pointerId,
+      centerX: centerX, centerY: centerY,
+      startAngle: Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180 / Math.PI,
+      startRotation: piece.rotation || 0
+    };
+    document.addEventListener('pointermove', onDragMove);
+    document.addEventListener('pointerup', onDragEnd);
+    document.addEventListener('pointercancel', onDragEnd);
+  }
+
+  function moveRotateDrag(e) {
+    var angle = Math.atan2(e.clientY - dragCtx.centerY, e.clientX - dragCtx.centerX) * 180 / Math.PI;
+    var rotation = ((dragCtx.startRotation + (angle - dragCtx.startAngle)) % 360 + 360) % 360;
+    dragCtx.newRotation = rotation;
+    dragCtx.pieceEl.style.transform = 'rotate(' + rotation + 'deg)';
+  }
+
+  function finishRotateDrag() {
+    setBodyNoSelect(false);
+    dragCtx.handleEl.classList.remove('dd-rotate-handle-active');
+    var piece = findPiece(dragCtx.kind, dragCtx.id);
+    if (piece && Number.isFinite(dragCtx.newRotation) && dragCtx.newRotation !== dragCtx.startRotation) {
+      beginChange();
+      piece.rotation = dragCtx.newRotation;
+      commitChange();
+    }
   }
 
   // ================= Drag: piece from inventory (add / place) =================
@@ -1006,6 +1073,8 @@
       positionGhost(dragCtx.ghostEl, e.clientX, e.clientY, dragCtx.ghostW, dragCtx.ghostH);
     } else if (dragCtx.type === 'sidebar-resize') {
       moveSidebarResizeDrag(e);
+    } else if (dragCtx.type === 'rotate') {
+      moveRotateDrag(e);
     }
   }
 
@@ -1019,6 +1088,7 @@
     if (type === 'placed') finishPlacedDrag(e);
     else if (type === 'library') finishLibraryDrag(e);
     else if (type === 'sidebar-resize') finishSidebarResizeDrag();
+    else if (type === 'rotate') finishRotateDrag();
 
     dragCtx = null;
   }
@@ -1035,8 +1105,9 @@
     if (dragCtx.rowEl) dragCtx.rowEl.classList.remove('dd-dragging-source');
     if (dragCtx.handleEl) dragCtx.handleEl.classList.remove('dd-resizing');
     if (dragCtx.type === 'sidebar-resize') sidebarEl.style.width = dragCtx.startWidth + 'px';
+    if (dragCtx.handleEl) dragCtx.handleEl.classList.remove('dd-rotate-handle-active');
 
-    var wasPlacedOrLibrary = dragCtx.type === 'placed' || dragCtx.type === 'library';
+    var wasPlacedOrLibrary = dragCtx.type === 'placed' || dragCtx.type === 'library' || dragCtx.type === 'rotate';
     dragCtx = null;
     if (wasPlacedOrLibrary) render();
   }
@@ -1143,6 +1214,13 @@
 
       var pieceEl = e.target.closest('.dd-piece');
       if (pieceEl) {
+        var rotateHandle = e.target.closest('.dd-rotate-handle');
+        if (rotateHandle) {
+          e.preventDefault();
+          bringPieceToFront(pieceEl.dataset.kind, pieceEl.dataset.id, pieceEl);
+          startRotateDrag(e, pieceEl, rotateHandle);
+          return;
+        }
         bringPieceToFront(pieceEl.dataset.kind, pieceEl.dataset.id, pieceEl);
         if (!e.target.closest('.dd-piece-label')) {
           e.preventDefault();
