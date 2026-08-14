@@ -399,6 +399,42 @@
   background: rgba(0,0,0,0.45);
 }
 
+/* ---------- Rotate handles (bass drum only) ---------- */
+/* Plain children of .dd-piece so the piece's own CSS rotate transform
+   carries them to the visually-rotated corner. Invisible until the user's
+   cursor is actually over one, per the "invisible unless hovering a corner"
+   requirement -- .dd-rotate-handle-active keeps it visible mid-drag even if
+   the cursor briefly slips outside its small hit area. */
+
+.dd-rotate-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  opacity: 0;
+  cursor: grab;
+  z-index: 5;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.15s ease;
+}
+
+.dd-rotate-handle:hover,
+.dd-rotate-handle.dd-rotate-handle-active {
+  opacity: 1;
+}
+
+.dd-rotate-handle.dd-rotate-handle-active {
+  cursor: grabbing;
+}
+
+.dd-rotate-tl { left: 0; top: 0; }
+.dd-rotate-tr { left: 100%; top: 0; }
+.dd-rotate-bl { left: 0; top: 100%; }
+.dd-rotate-br { left: 100%; top: 100%; }
+
 /* ---------- Stencil part colors ---------- */
 
 .dd-s-shell { fill: #2a2723; stroke: rgba(0,0,0,0.55); stroke-width: 2; }
