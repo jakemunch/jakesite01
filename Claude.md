@@ -100,7 +100,7 @@ All colors, fonts, shadows, transitions, and radii are defined as CSS custom pro
 ### Credentials Referenced on Site
 - B.S. Jazz Performance, Temple University
 - Working relationship with Shure Incorporated on expert-level troubleshooting
-- Notable clients: Merion Mercy Academy (MMMT), Waldron Mercy Academy, St. Margaret School (Narberth, PA), Players Club of Swarthmore
+- Notable clients: Merion Mercy Academy (sound supervisor for the MMMT theater program; also teaches drums/guitar/bass for the Performing Arts department and holds the formal title "Rock Band Coach" for the school-sponsored Rock Band — capitalize "Rock Band" when referring to it), Waldron Mercy Academy, St. Margaret School (Narberth, PA), Players Club of Swarthmore
 
 ### Contact Form Fields
 1. Name (text, required)
