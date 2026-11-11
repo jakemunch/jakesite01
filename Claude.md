@@ -84,6 +84,7 @@ All colors, fonts, shadows, transitions, and radii are defined as CSS custom pro
 - Classical percussion (snare, mallet, timpani) — beginner → collegiate
 - Acoustic guitar (folk, blues, slide, rock) — beginner → collegiate
 - Electric guitar (blues, rock, metal, R&B) — beginner → collegiate
+- Electric bass, fretted & fretless (blues, rock, metal, R&B, funk) — beginner → collegiate
 - Piano/keyboard — all genres, beginner → intermediate
 
 **Audio Engineering Instruction (Zoom & in-person):**
@@ -105,7 +106,7 @@ All colors, fonts, shadows, transitions, and radii are defined as CSS custom pro
 1. Name (text, required)
 2. Email (email, required)
 3. Phone (tel, optional)
-4. Interest (select, required) — options: Drum Lessons, Guitar Lessons, Piano/Keyboard Lessons, Classical Percussion Lessons, Studio Audio Engineering Instruction, Live Audio Engineering Instruction, Live Sound Consulting, Theater Sound Design, Other/Multiple Services
+4. Interest (select, required) — options: Drum Lessons, Guitar Lessons, Bass Lessons, Piano/Keyboard Lessons, Classical Percussion Lessons, Studio Audio Engineering Instruction, Live Audio Engineering Instruction, Live Sound Consulting, Theater Sound Design, Remote Session Recording, Mixing & Mastering, Other/Multiple Services
 5. Preferred Format (select) — Zoom, In-Person, Either, N/A
 6. Experience Level (select) — Beginner, Intermediate, Advanced, Professional, N/A
 7. Message (textarea, required)
