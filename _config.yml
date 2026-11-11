@@ -1,0 +1,6 @@
+# GitHub Pages (Jekyll) build settings.
+# Keep repo-only docs from being published as pages on jakemunch.com.
+exclude:
+  - Claude.md
+  - CLAUDE.md
+  - README.md
