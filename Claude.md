@@ -131,6 +131,8 @@ No rates displayed on site. All pricing is "Contact for pricing."
   - 4x A records: `@` → `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
   - 1x CNAME: `www` → `jakemunch.github.io`
   - 1x CNAME (Google verification, pre-existing): `sguwi25zqmyw` → `gv-puh2pvnfse3r6b.dv.googlehosted.com`
+  - 1x TXT (GitHub Pages domain verification): `_github-pages-challenge-jakemunch` → `299d5dc2811d0930cc060722474689` — **keep permanently**; GitHub re-checks it, and removing it re-opens the domain-takeover risk
+- **GitHub domain verification:** `jakemunch.com` verified in GitHub account Settings → Pages (2026-11-11); covers `www` and all subdomains
 - **HTTPS:** Enforced via GitHub Pages (free certificate)
 - **Squarespace Domain Connect preset:** Deleted (was conflicting with GitHub)
 
@@ -138,6 +140,16 @@ No rates displayed on site. All pricing is "Contact for pricing."
 - **Service:** Formspree (formspree.io)
 - **Tier:** Free (50 submissions/month)
 - **Integration:** HTML form `action` attribute in `contact.html`, POST method
+- **Spam protection:** hidden `_gotcha` honeypot field; reCAPTCHA can optionally be enabled in Formspree form settings
+
+### Security
+A security audit was performed on 2026-11-11. Rules to follow when adding content:
+- **Strip photo metadata before committing images.** Phone photos embed GPS coordinates and device info. Remove all EXIF/XMP/IPTC data but preserve the Orientation tag (many iPhone photos rely on it to display upright) and the ICC color profile. Do this losslessly (rewrite header segments only, don't re-encode).
+- **Content-Security-Policy** is set via `<meta http-equiv>` on every page (`script-src 'self'`, no inline scripts). New pages must copy it; new third-party scripts, embeds, or form targets need the CSP updated deliberately. Prefer self-hosted files over CDN scripts.
+- **`_config.yml`** excludes `Claude.md` / `README.md` from the published site. Add any new repo-only docs there.
+- **Escape user/imported text** before inserting it via `innerHTML` (both interactive tools use an `escapeHtml` helper and allowlist imported types).
+- **Not fixable on GitHub Pages:** HSTS and `frame-ancestors` headers can't be set. Low risk for this site (no logins or sensitive actions).
+- **Known/accepted:** original GPS-tagged photos remain in public git history; owner chose not to rewrite history.
 
 ---
 
