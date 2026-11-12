@@ -161,7 +161,9 @@ img {
   transition: all var(--transition);
 }
 
-@media (max-width: 768px) {
+/* The full nav (9 items + logo) stops fitting below ~1000px, so switch to
+   the hamburger menu there rather than at the general 768px breakpoint. */
+@media (max-width: 1000px) {
   .nav-toggle { display: flex; }
 
   .nav-links {
@@ -184,6 +186,13 @@ img {
     padding: 12px 16px;
     font-size: 1rem;
   }
+}
+
+/* Nine nav items only just fit at laptop widths; tighten spacing until
+   the hamburger menu takes over at 1000px. */
+@media (max-width: 1100px) and (min-width: 1001px) {
+  .nav-links { gap: 2px; }
+  .nav-links a { padding: 8px 10px; }
 }
 
 /* --- Buttons --- */
@@ -1456,6 +1465,111 @@ img {
 }
 
 /* ===================================================
+   TOOLS PAGE
+   =================================================== */
+
+.tools-section {
+  padding: 72px 0 64px;
+}
+
+.tool-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+}
+
+.tool-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: all var(--transition);
+}
+
+.tool-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary);
+}
+
+.tool-card-image {
+  display: block;
+  aspect-ratio: 9 / 5;
+  background: var(--color-dark-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tool-card-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tool-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 28px;
+}
+
+.tool-card-body h2 {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--color-heading);
+  margin-bottom: 10px;
+}
+
+.tool-card-body > p {
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
+
+.tool-features {
+  list-style: none;
+  margin-bottom: 24px;
+}
+
+.tool-features li {
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.tool-features li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.tool-card-body .btn {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+.tools-note {
+  margin: 40px auto 0;
+  max-width: 720px;
+  padding: 14px 20px;
+  text-align: center;
+  background: var(--color-primary-light);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+}
+
+@media (max-width: 480px) {
+  .tool-cards { grid-template-columns: 1fr; }
+  .tool-card-body { padding: 24px 20px; }
+  .tool-card-body .btn { align-self: stretch; }
+}
+
+/* ===================================================
    ANIMATIONS
    =================================================== */
 
@@ -1479,13 +1593,15 @@ img {
 .testimonial-card,
 .client-card,
 .consult-item,
-.credential {
+.credential,
+.tool-card {
   animation: fadeInUp 0.6s ease-out both;
 }
 
 .service-card:nth-child(2),
 .instrument-card:nth-child(2),
-.testimonial-card:nth-child(2) { animation-delay: 0.1s; }
+.testimonial-card:nth-child(2),
+.tool-card:nth-child(2) { animation-delay: 0.1s; }
 .service-card:nth-child(3),
 .instrument-card:nth-child(3),
 .testimonial-card:nth-child(3) { animation-delay: 0.2s; }

@@ -40,7 +40,7 @@
 - **Container padding:** 0 24px
 - **Card padding:** 32px 28px (service cards), 28px (sidebar cards), 24px (client/consult cards)
 - **Section padding:** 64–80px vertical
-- **Responsive breakpoints:** 768px (tablet/mobile nav), 480px (small mobile), 680px (about page grid)
+- **Responsive breakpoints:** 1000px (nav switches to hamburger), 1001–1100px (tightened nav spacing), 768px (tablet layouts), 480px (small mobile), 680px (about page grid)
 
 ### Component Patterns
 - **Navigation:** Sticky top, frosted glass effect (`backdrop-filter: blur(12px)`), hamburger menu on mobile
@@ -75,6 +75,9 @@ All colors, fonts, shadows, transitions, and radii are defined as CSS custom pro
 | `testimonials.html` | Testimonials | 6 placeholder cards — replace with real quotes |
 | `gallery.html` | Gallery | 4 categories with placeholder slots — replace with `<img>` tags |
 | `contact.html` | Contact | Formspree-powered form (7 fields) + sidebar with quick info and "what to expect" |
+| `tools.html` | Tools | Landing page with a card (screenshot, features, Launch button) for each interactive tool |
+| `drumkit-designer/` | Drumkit Designer | Interactive overhead drum-kit layout planner; own CSS/JS; Help dialog auto-opens on first visit |
+| `rack-builder/` | Rack Builder | Interactive 19" rack + patch planner; gear catalog in `gear/gear.json`; Help dialog auto-opens on first visit |
 | `styles.css` | Stylesheet | All styles for all pages, responsive |
 | `nav.js` | Navigation | Mobile hamburger toggle script |
 
