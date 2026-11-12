@@ -6,6 +6,7 @@
   var GRID = 10;
   var STORAGE_KEY = 'drumkitDesignerLayout.v1';
   var SIDEBAR_WIDTH_KEY = 'drumkitDesignerSidebarWidth.v1';
+  var HELP_SEEN_KEY = 'drumkitDesignerHelpSeen.v1';
   var SIDEBAR_MIN_W = 220;
   var SIDEBAR_MAX_W = 480;
   var CANVAS_MIN_W = 1400;
@@ -50,6 +51,7 @@
   // ---------- DOM refs ----------
   var sidebarEl, canvasViewportEl, canvasEl;
   var undoBtn, exportBtn, importBtn, importInput, handednessBtn, snapBtn, kitNameInput, clearAllBtn;
+  var helpDialogEl, helpBtn, helpCloseBtn;
   var panelEl = null;
 
   // ---------- App state ----------
@@ -1195,6 +1197,9 @@
     snapBtn = document.getElementById('dd-snap');
     kitNameInput = document.getElementById('dd-kit-name');
     clearAllBtn = document.getElementById('dd-clear-all');
+    helpDialogEl = document.getElementById('dd-help');
+    helpBtn = document.getElementById('dd-help-btn');
+    helpCloseBtn = document.getElementById('dd-help-close');
   }
 
   function wireEvents() {
@@ -1264,6 +1269,7 @@
     });
 
     document.addEventListener('keydown', function (e) {
+      if (helpDialogEl.open) return; // dialog handles its own Esc; don't undo behind it
       if (e.key === 'Escape' && dragCtx) { cancelActiveDrag(); return; }
       if (e.key === 'Escape' && panelState) { closePanel(true); return; }
       if ((e.target.matches('.dd-piece-label') || e.target === kitNameInput) && e.key === 'Enter') { e.preventDefault(); e.target.blur(); return; }
@@ -1293,6 +1299,30 @@
     });
   }
 
+  // ================= Help dialog =================
+
+  function openHelp() {
+    if (!helpDialogEl.open) helpDialogEl.showModal();
+  }
+
+  function wireHelp() {
+    helpBtn.addEventListener('click', openHelp);
+    helpCloseBtn.addEventListener('click', function () { helpDialogEl.close(); });
+    // The dialog has no padding of its own, so a click whose target is the
+    // dialog element itself landed on the backdrop outside the content.
+    helpDialogEl.addEventListener('click', function (e) {
+      if (e.target === helpDialogEl) helpDialogEl.close();
+    });
+    // Auto-open once per browser: record it as seen at the moment it's
+    // shown, so it never depends on how (or whether) the visitor closes it.
+    var seen = false;
+    try { seen = localStorage.getItem(HELP_SEEN_KEY) === '1'; } catch (err) { /* treat as unseen */ }
+    if (!seen) {
+      openHelp();
+      try { localStorage.setItem(HELP_SEEN_KEY, '1'); } catch (err) { /* non-critical */ }
+    }
+  }
+
   // ================= Init =================
 
   function loadSidebarWidth() {
@@ -1316,6 +1346,7 @@
     wireEvents();
     render();
     updateUndoButton();
+    wireHelp();
   }
 
   document.addEventListener('DOMContentLoaded', init);

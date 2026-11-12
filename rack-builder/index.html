@@ -55,8 +55,64 @@
         <button type="button" class="rb-btn" id="rb-export">Export</button>
         <button type="button" class="rb-btn" id="rb-import-btn">Import</button>
         <input type="file" id="rb-import-input" accept="application/json" hidden>
+        <button type="button" class="rb-btn" id="rb-help-btn" aria-haspopup="dialog">? Help</button>
       </div>
     </div>
+
+    <!-- Help dialog (opens automatically on first visit) -->
+    <dialog class="rb-help" id="rb-help" aria-labelledby="rb-help-title">
+      <div class="rb-help-header">
+        <h2 id="rb-help-title">Rack Builder Help</h2>
+        <button type="button" class="rb-help-close" id="rb-help-close" aria-label="Close help">×</button>
+      </div>
+      <div class="rb-help-body">
+        <p class="rb-help-intro"><strong>Plan your 19-inch equipment racks.</strong> Lay out real gear and document every patch connection, all before you lift a single piece.</p>
+
+        <h3>Racks</h3>
+        <ul>
+          <li><strong>+ Add rack</strong> creates a new rack. Type a name in its title bar.</li>
+          <li><strong>Drag the title bar</strong> to move a rack around the workspace.</li>
+          <li><strong>Drag the handle at the bottom</strong> of a rack to add or remove rack spaces (U). A rack can't shrink past the lowest device installed in it.</li>
+          <li><strong>🗑</strong> in the title bar deletes the rack.</li>
+        </ul>
+
+        <h3>Adding gear</h3>
+        <ul>
+          <li><strong>Search</strong> the gear library by name, or filter by category: Wireless, Audio, Power, FX or Misc.</li>
+          <li><strong>Drag</strong> a device into a rack. Open spaces light up where it fits.</li>
+          <li><strong>Half-rack devices</strong> can sit side by side in the same rack space.</li>
+          <li><strong>Drag a placed device</strong> to move it within a rack or to a different rack. Its labels and notes move with it.</li>
+        </ul>
+
+        <h3>Labels, patching and notes</h3>
+        <ul>
+          <li><strong>Hover over a device</strong> to see its patch info. <strong>Click the popup</strong> to edit it:
+            <ul>
+              <li>Add <strong>inputs and outputs</strong> with a description and where each one is patched to.</li>
+              <li><strong>Rack drawers</strong> get a notes field to describe what's inside.</li>
+            </ul>
+          </li>
+          <li><strong>Label panels</strong> have a text field you can click and type in directly.</li>
+          <li><strong>🔌 Patch List</strong> shows every connection across all your racks in one table.</li>
+        </ul>
+
+        <h3>Removing gear</h3>
+        <p>Drag a device back onto the sidebar, or click the <strong>×</strong> on it.</p>
+
+        <h3>Undo</h3>
+        <p>Click <strong>↺ Undo</strong> or press <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>Z</kbd> to reverse your last change.</p>
+
+        <h3>Saving your work</h3>
+        <ul>
+          <li>Your layout <strong>saves automatically</strong> in this browser, so it'll be here when you come back on this device.</li>
+          <li><strong>Export</strong> downloads your layout as a file you can keep, back up or send to someone.</li>
+          <li><strong>Import</strong> opens a saved file. It replaces whatever is currently on the workspace.</li>
+        </ul>
+
+        <p class="rb-help-tip"><strong>Tip:</strong> drag the sidebar's edge to make it wider or narrower. Don't see your gear? Use the <strong>Request a device</strong> link at the bottom of the sidebar.</p>
+        <p class="rb-help-note">Best on a desktop or laptop with a mouse.</p>
+      </div>
+    </dialog>
 
     <!-- Small viewport notice -->
     <p class="rb-small-viewport-note">Rack Builder is designed for desktop screens. For the best experience, please switch to a larger display.</p>

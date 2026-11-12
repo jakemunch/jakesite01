@@ -13,6 +13,7 @@
   var GRID = 20;
   var STORAGE_KEY = 'rackBuilderLayout.v1';
   var SIDEBAR_WIDTH_KEY = 'rackBuilderSidebarWidth.v1';
+  var HELP_SEEN_KEY = 'rackBuilderHelpSeen.v1';
   var SIDEBAR_MIN_W = 200;
   var SIDEBAR_MAX_W = 560;
 
@@ -35,6 +36,7 @@
   var sidebarEl, gearListEl, searchInput, filterPillsEl;
   var canvasViewportEl, canvasEl;
   var addRackBtn, undoBtn, exportBtn, importBtn, importInput, patchListBtn;
+  var helpDialogEl, helpBtn, helpCloseBtn;
 
   // ---------- App state ----------
   var gearCatalog = [];
@@ -1442,6 +1444,9 @@
     importBtn = document.getElementById('rb-import-btn');
     importInput = document.getElementById('rb-import-input');
     patchListBtn = document.getElementById('rb-patch-list');
+    helpDialogEl = document.getElementById('rb-help');
+    helpBtn = document.getElementById('rb-help-btn');
+    helpCloseBtn = document.getElementById('rb-help-close');
   }
 
   function wireEvents() {
@@ -1534,6 +1539,7 @@
     });
 
     document.addEventListener('keydown', function (e) {
+      if (helpDialogEl.open) return; // dialog handles its own Esc; don't undo behind it
       if (e.key === 'Escape' && patchListOverlayEl) { closePatchListModal(); return; }
       if (e.key === 'Escape' && tooltipState && tooltipState.mode === 'edit') { finishTooltipEdit(true); return; }
       if (e.key === 'Escape' && dragCtx) { cancelActiveDrag(); return; }
@@ -1578,6 +1584,30 @@
     });
   }
 
+  // ================= Help dialog =================
+
+  function openHelp() {
+    if (!helpDialogEl.open) helpDialogEl.showModal();
+  }
+
+  function wireHelp() {
+    helpBtn.addEventListener('click', openHelp);
+    helpCloseBtn.addEventListener('click', function () { helpDialogEl.close(); });
+    // The dialog has no padding of its own, so a click whose target is the
+    // dialog element itself landed on the backdrop outside the content.
+    helpDialogEl.addEventListener('click', function (e) {
+      if (e.target === helpDialogEl) helpDialogEl.close();
+    });
+    // Auto-open once per browser: record it as seen at the moment it's
+    // shown, so it never depends on how (or whether) the visitor closes it.
+    var seen = false;
+    try { seen = localStorage.getItem(HELP_SEEN_KEY) === '1'; } catch (err) { /* treat as unseen */ }
+    if (!seen) {
+      openHelp();
+      try { localStorage.setItem(HELP_SEEN_KEY, '1'); } catch (err) { /* non-critical */ }
+    }
+  }
+
   // ================= Init =================
 
   function loadSidebarWidth() {
@@ -1593,6 +1623,7 @@
   function init() {
     cacheDom();
     loadSidebarWidth();
+    wireHelp();
     loadGearCatalog().then(function () {
       state = loadInitialState();
       lastSyncedSnapshot = null;

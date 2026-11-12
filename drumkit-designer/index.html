@@ -57,8 +57,60 @@
         <button type="button" class="dd-btn" id="dd-import-btn">Import</button>
         <input type="file" id="dd-import-input" accept="application/json" hidden>
         <button type="button" class="dd-btn dd-btn-danger" id="dd-clear-all">🗑 Clear All</button>
+        <button type="button" class="dd-btn" id="dd-help-btn" aria-haspopup="dialog">? Help</button>
       </div>
     </div>
+
+    <!-- Help dialog (opens automatically on first visit) -->
+    <dialog class="dd-help" id="dd-help" aria-labelledby="dd-help-title">
+      <div class="dd-help-header">
+        <h2 id="dd-help-title">Drumkit Designer Help</h2>
+        <button type="button" class="dd-help-close" id="dd-help-close" aria-label="Close help">×</button>
+      </div>
+      <div class="dd-help-body">
+        <p class="dd-help-intro"><strong>Plan your kit from overhead.</strong> Lay out drums and cymbals at real-world sizes, then save or share the design.</p>
+
+        <h3>Adding pieces</h3>
+        <ul>
+          <li><strong>Drag</strong> a drum or cymbal from the sidebar onto the workspace to place it exactly where you want it.</li>
+          <li>Or set a quantity and click <strong>+</strong> to add one or more pieces at once. The settings panel opens for the last one added.</li>
+        </ul>
+
+        <h3>Arranging</h3>
+        <ul>
+          <li><strong>Drag</strong> any piece to move it. Clicking a piece also brings it to the front when pieces overlap.</li>
+          <li><strong>Bass drums</strong> have corner handles. Drag one to rotate the drum.</li>
+          <li><strong>Snap to grid</strong> keeps pieces neatly aligned while you move them.</li>
+          <li><strong>⇄ Right-Handed / Left-Handed</strong> mirrors the whole kit for the opposite setup.</li>
+        </ul>
+
+        <h3>Customizing a piece</h3>
+        <ul>
+          <li><strong>Click</strong> a piece (without dragging) to open its settings: label, diameter and depth (in inches), and shell color for drums.</li>
+          <li>You can also click the label on a piece and type directly.</li>
+          <li>Press <kbd>Esc</kbd> to cancel your changes, or click anywhere else to keep them.</li>
+        </ul>
+
+        <h3>Removing pieces</h3>
+        <ul>
+          <li>Drag a piece back onto the sidebar, or open its settings and click <strong>Delete</strong>.</li>
+          <li><strong>🗑 Clear All</strong> starts over with an empty workspace.</li>
+        </ul>
+
+        <h3>Undo</h3>
+        <p>Click <strong>↺ Undo</strong> or press <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>Z</kbd> to reverse your last change.</p>
+
+        <h3>Saving your work</h3>
+        <ul>
+          <li>Your kit <strong>saves automatically</strong> in this browser, so it'll be here when you come back on this device.</li>
+          <li><strong>Export</strong> downloads your kit as a file you can keep, back up or send to someone.</li>
+          <li><strong>Import</strong> opens a saved file. It replaces whatever is currently on the workspace.</li>
+        </ul>
+
+        <p class="dd-help-tip"><strong>Tip:</strong> drag the sidebar's edge to make it wider or narrower. Missing a piece you need? Use the <strong>Request an addition</strong> link at the bottom of the sidebar.</p>
+        <p class="dd-help-note">Best on a desktop or laptop with a mouse.</p>
+      </div>
+    </dialog>
 
     <!-- Small viewport notice -->
     <p class="dd-small-viewport-note">Drumkit Designer is designed for desktop screens. For the best experience, please switch to a larger display.</p>
