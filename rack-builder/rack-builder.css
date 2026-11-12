@@ -968,3 +968,133 @@
   font-weight: 700;
   text-align: center;
 }
+
+/* ---------- Help dialog ----------
+   Native <dialog> opened with showModal(), so it renders in the top layer
+   above the site nav, panels, and tooltips. Like the panels above, values
+   are literals matching .rb-app's tokens. The dialog itself has no padding:
+   a click whose target is the <dialog> element means the backdrop was hit. */
+
+.rb-help {
+  width: min(640px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  padding: 0;
+  margin: auto; /* styles.css resets every margin to 0, which kills the dialog's default centering */
+  background: #2c2f36;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 8px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  color: var(--color-dark-text);
+  font-family: var(--font-body);
+  overflow: hidden;
+}
+
+.rb-help[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.rb-help::backdrop {
+  background: rgba(0,0,0,0.6);
+}
+
+.rb-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 24px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.09);
+}
+
+.rb-help-header h2 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1.35rem;
+  color: var(--color-dark-text);
+}
+
+.rb-help-close {
+  background: transparent;
+  border: none;
+  color: #9aa0aa;
+  cursor: pointer;
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 2px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.rb-help-close:hover {
+  color: #e05a4f;
+  background: rgba(224,90,79,0.12);
+}
+
+.rb-help-body {
+  overflow-y: auto;
+  padding: 16px 24px 20px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.rb-help-body h3 {
+  margin: 18px 0 6px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #e0915f; /* lightened copper: --color-primary is only 3.2:1 on this panel */
+}
+
+.rb-help-body p {
+  margin: 0 0 8px;
+}
+
+.rb-help-body ul {
+  margin: 0 0 8px;
+  padding-left: 20px;
+}
+
+.rb-help-body li {
+  margin-bottom: 4px;
+}
+
+.rb-help-body li ul {
+  margin: 4px 0 0;
+}
+
+.rb-help-body strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.rb-help-body kbd {
+  font-family: inherit;
+  font-size: 0.78rem;
+  padding: 1px 6px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+}
+
+.rb-help-intro {
+  font-size: 0.95rem;
+}
+
+.rb-help-tip {
+  margin-top: 18px !important;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.05);
+  border-left: 3px solid var(--color-primary);
+  border-radius: 4px;
+}
+
+.rb-help-note {
+  color: #9aa0aa;
+  font-size: 0.8rem;
+  font-style: italic;
+}
